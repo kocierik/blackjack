@@ -7,13 +7,14 @@ playBlackjack[seed_: Automatic] :=
 
   (* Inizializzazione del mazzo di carte *)
   deck = Flatten[
-    Table[{10, 10, 10, 10, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10}, {4}], 1];
+    Table[{11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10}, {4}], 1];
 
   (* Mescolamento del mazzo *)
   deck = RandomSample[deck];
 
   (* Inizializzazione delle mani del giocatore e del dealer *)
   playerHand = RandomSample[deck, 2];
+  (* meglio togliere le carte piuttosto che pescare dal complementare (?) perchè dopo, se si pesca una carta non si tengono in considerazione le carte dell'avversario **** *)
   dealerHand = RandomSample[Complement[deck, playerHand], 2];
 
   (* Inizializzazione del punteggio del giocatore *)
@@ -44,10 +45,10 @@ playBlackjack[seed_: Automatic] :=
             Background -> {Darker[LightGreen, 0.2], Lighter[LightGreen]}, 
             BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]}}]}]];
     If[decision === "Hit",
-     AppendTo[playerHand, RandomChoice[Complement[deck, playerHand]]];
+     AppendTo[playerHand, RandomChoice[Complement[deck, playerHand]]];(* **** *)
      playerScore = calculateScore[playerHand];
      If[playerScore > 21, DialogReturn["bust"]];
-     playerTurn[],
+     playerTurn[],  (* richiama la funzione: nuovo turno *)
      If[decision === "Stand",
       (* Se il giocatore sta, il dealer pesca la sua seconda carta *)
       dealerHand = Join[dealerHand, RandomChoice[Complement[deck, dealerHand]]];
@@ -92,4 +93,6 @@ playBlackjack[seed_: Automatic] :=
       Button["Nuova Partita", playBlackjack[]], Button["Quit", DialogReturn[]]}]]]
 
 (* Avvia il gioco con un seed specifico, ad esempio 123 *)
-playBlackjack[123]
+playBlackjack[]
+
+During evaluation of In[11]:= Lookup::invrl: The argument Developer`NotebookInformation[$Failed] is not a valid Association or a list of rules.
