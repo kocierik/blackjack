@@ -1,5 +1,3 @@
-(* ::Package:: *)
-
 BeginPackage["Blackjack`"]
 
 playBlackjack::usage = "playBlackjack[] avvia il gioco del Blackjack."

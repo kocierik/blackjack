@@ -1,14 +1,3 @@
-In[12]:=
-Needs["Blackjack`"]
+  Needs["blackjack"]
 
 playBlackjack[123]
-
-
-During evaluation of In[12]:= Get::noopen: Cannot open Blackjack`.
-During evaluation of In[12]:= Needs::nocont: Context Blackjack` was not created when Needs was evaluated.
-Out[12]= $Failed
-During evaluation of In[12]:= Lookup::invrl: The argument Developer`NotebookInformation[$Failed] is not a valid Association or a list of rules.
-During evaluation of In[12]:= Lookup::invrl: The argument Developer`NotebookInformation[$Failed] is not a valid Association or a list of rules.
-During evaluation of In[12]:= Lookup::invrl: The argument Developer`NotebookInformation[$Failed] is not a valid Association or a list of rules.
-During evaluation of In[12]:= General::stop: Further output of Lookup::invrl will be suppressed during this calculation.
-Out[14]= $Canceled
