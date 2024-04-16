@@ -1,3 +1,5 @@
+(* ::Package:: *)
+
 BeginPackage["Blackjack`"]
 
 playBlackjack::usage = "playBlackjack[] avvia il gioco del Blackjack."
@@ -41,7 +43,7 @@ playBlackjack[seed_: Automatic] :=
     decision = DialogInput[
       DialogNotebook[{TextCell[
           "Le tue carte sono: " <> showCards[playerHand] <> ". Totale: " <> ToString[playerScore], "Text"], 
-         TextCell["La carta del dealer è: " <> ToString[dealerHand[[1]]] <> ". Totale: " <> ToString[dealerHand[[1]]], "Text"], 
+         TextCell["La carta del dealer \[EGrave]: " <> ToString[dealerHand[[1]]] <> ". Totale: " <> ToString[dealerHand[[1]]], "Text"], 
          TextCell["'hit' o 'stand'?", "Text"], 
          Grid[{{Button[Hit, DialogReturn["Hit"], 
             Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
@@ -52,8 +54,7 @@ playBlackjack[seed_: Automatic] :=
     If[decision === "Hit",
      AppendTo[playerHand, RandomChoice[Complement[deck, playerHand]]];
      playerScore = calculateScore[playerHand];
-     If[playerScore > 21, DialogReturn["bust"]];
-     playerTurn[], 
+     If[playerScore > 21, DialogReturn["bust"], playerTurn[]];
      If[decision === "Stand",
       dealerHand = Join[dealerHand, RandomChoice[Complement[deck, dealerHand]]];
       dealerScore = calculateScore[dealerHand];
