@@ -94,5 +94,3 @@ playBlackjack[seed_: Automatic] :=
 
 (* Avvia il gioco con un seed specifico, ad esempio 123 *)
 playBlackjack[]
-
-During evaluation of In[11]:= Lookup::invrl: The argument Developer`NotebookInformation[$Failed] is not a valid Association or a list of rules.
