@@ -1,0 +1,48 @@
+Needs["blackjack`"]
+
+playBlackjack[seed_ : Automatic] :=
+  Module[{deck, playerHand, dealerHand, playerScore, dealerScore, 
+      playerDecision, dealerDecision, winner},
+  
+    (* Impostazione del seed se specificato dall'utente *)
+    If[seed =!= Automatic, SeedRandom[seed]];
+  
+    (* Inizializzazione del mazzo di carte *)
+    deck = blackjack`initDeck[];
+  
+    (* Inizializzazione delle mani del giocatore e del dealer *)
+    playerHand = initPlayerHand[deck];
+    (* meglio togliere le carte piuttosto che pescare dal complementare (?) perchè dopo, se si pesca una carta non si tengono in considerazione le carte dell'avversario **** *)
+    dealerHand = initDealerHand[deck, playerHand];
+  
+    (* Inizializzazione del punteggio del giocatore e del dealer*)
+    playerScore = calculateScore[playerHand];
+    dealerScore = calculateScore[dealerHand];
+  
+    (* Turno del giocatore *)
+    playerHand = playerTurn[deck, playerHand, dealerHand];
+    playerScore = calculateScore[playerHand];
+    If[playerScore <= 21, 
+         dealerHand = dealerTurn[deck_, playerHand_, dealerHand_]]
+    
+      (* Determina il vincitore *)
+      winner = determineWinner[];
+  
+    (* Mostra il risultato finale *)
+    DialogInput[
+      DialogNotebook[{TextCell[
+             "Le tue carte sono: " <> showCards[playerHand] <> ". Totale: " <> ToString[playerScore], "Text"], 
+           TextCell["Le carte del dealer sono: " <> showCards[dealerHand] <> ". Totale: " <> ToString[dealerScore], "Text"], 
+           TextCell[winner, Background -> LightBlue], 
+           Button["Nuova Partita", playBlackjack[]], Button["Quit", DialogReturn[]]}]]]
+
+(* Avvia il gioco con un seed specifico, ad esempio 123 *)
+playBlackjack[123]
+During evaluation of In[16]:= RandomSample::lrwl: The set of items to sample from, deck, should be a non-empty list or a rule weights -> choices.
+During evaluation of In[16]:=
+Syntax::sntx: Invalid syntax in or before "initDealerHand[deck_, playerHand_] := Return[RandomSample[[deck, playerHand], 2]];" (line 16 of "blackjack`").
+                                                                                                                        ^
+During evaluation of In[16]:= Needs::nocont: Context blackjack` was not created when Needs was evaluated.
+During evaluation of In[16]:= Set::write: Tag Times in winner$6027 If[calculateScore[playerTurn[blackjack`initDeck[],initPlayerHand[blackjack`initDeck[]],initDealerHand[blackjack`initDeck[],initPlayerHand[blackjack`initDeck[]]]]]<=21,dealerHand$6027=dealerTurn[deck_,playerHand_,dealerHand_]] is Protected.
+During evaluation of In[16]:= StringJoin::string: String expected at position 2 in Le tue carte sono: <>showCards[playerTurn[blackjack`initDeck[],initPlayerHand[blackjack`initDeck[]],initDealerHand[blackjack`initDeck[],initPlayerHand[blackjack`initDeck[]]]]]<>. Totale: calculateScore[playerTurn[blackjack`initDeck[], initPlayerHand[blackjack`initDeck[]], initDealerHand[blackjack`initDeck[], initPlayerHand[blackjack`initDeck[]]]]].
+During evaluation of In[16]:= StringJoin::string: String expected at position 2 in Le carte del dealer sono: <>showCards[initDealerHand[blackjack`initDeck[],initPlayerHand[blackjack`initDeck[]]]]<>. Totale: calculateScore[initDealerHand[blackjack`initDeck[], initPlayerHand[blackjack`initDeck[]]]].

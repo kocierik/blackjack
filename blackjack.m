@@ -1,99 +1,64 @@
+(* ::Package:: *)
+
 BeginPackage["Blackjack`"]
 
 playBlackjack::usage = "playBlackjack[] avvia il gioco del Blackjack."
 
-Begin["`Private`"]
+Begin["`Public`"]
 
-playBlackjack[seed_: Automatic] :=
- Module[{deck, playerHand, dealerHand, playerScore, dealerScore, 
-   playerDecision, dealerDecision, winner},
+(* Mazzo di carte *)
+initDeck[] := 
+	deck = Flatten[Table[{11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10}, {4}], 1];
+    Return[RandomSample[deck]];
 
-  (* Impostazione del seed se specificato dall'utente *)
-  If[seed =!= Automatic, SeedRandom[seed]];
+(* Inizializzazione della mano del giocatore  *)
+initPlayerHand[deck_] := Return[RandomSample[deck, 2]];
+	
+(* Inizializzazione della mano del dealer *)
+initDealerHand[deck_, playerHand_] := RandomSample[Join[deck, playerHand], 2];
 
-  (* Inizializzazione del mazzo di carte *)
-  deck = Flatten[
-    Table[{11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10}, {4}], 1];
+(* Calcolo punteggio della mano data in input *)
+calculateScore[hand_List] :=
+    Return[
+    If[MemberQ[hand, 11] && Total[hand] > 21,
+        Total[hand]-10,    (* then *)
+        Total[hand]]];     (* else *)
+        
+(* Funzione per mostrare le carte *)
+showCards[hand_List] := StringJoin[Riffle[ToString /@ hand, ", "]];
 
-  (* Mescolamento del mazzo *)
-  deck = RandomSample[deck];
-
-  (* Inizializzazione delle mani del giocatore e del dealer *)
-  playerHand = RandomSample[deck, 2];
-  dealerHand = RandomSample[Complement[deck, playerHand], 2];
-
-  (* Inizializzazione del punteggio del giocatore *)
-  playerScore = Total[playerHand];
-
-  (* Funzione per calcolare il punteggio *)
-  calculateScore[hand_List] :=
-   Module[{score},
-    score = Total[hand];
-    If[MemberQ[hand, 11] && score > 21, score -= 10];
-    score];
-
-  (* Funzione per mostrare le carte *)
-  showCards[hand_List] := StringJoin[Riffle[ToString /@ hand, ", "]];
-
-  (* Funzione per il turno del giocatore *)
-  playerTurn[] :=
-   Module[{decision},
+(* Turno del giocatore *)
+playerTurn[deck_, playerHand_, dealerHand_] := 
+	Module[{decision},
     decision = DialogInput[
       DialogNotebook[{TextCell[
-          "Le tue carte sono: " <> showCards[playerHand] <> ". Totale: " <> ToString[playerScore], "Text"], 
+         "Le tue carte sono: " <> showCards[playerHand] <> ". Totale: " <> ToString[calculateScore[playerHand]], "Text"], 
          TextCell["La carta del dealer \[EGrave]: " <> ToString[dealerHand[[1]]] <> ". Totale: " <> ToString[dealerHand[[1]]], "Text"], 
          TextCell["'hit' o 'stand'?", "Text"], 
          Grid[{{Button[Hit, DialogReturn["Hit"], 
             Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
             BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
-           Button[Stand, DialogReturn["Stand"], 
+            Button[Stand, DialogReturn["Stand"], 
             Background -> {Darker[LightGreen, 0.2], Lighter[LightGreen]}, 
             BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]}}]}]];
     If[decision === "Hit",
-     AppendTo[playerHand, RandomChoice[Complement[deck, playerHand]]];
-     playerScore = calculateScore[playerHand];
-     If[playerScore > 21, DialogReturn["bust"], playerTurn[]];
-     If[decision === "Stand",
-      dealerHand = Join[dealerHand, RandomChoice[Complement[deck, dealerHand]]];
-      dealerScore = calculateScore[dealerHand];
-      Null,
-      DialogReturn["cancel"]]]];
+     AppendTo[playerHand, RandomChoice[Complement[deck, playerHand, dealerHand]]];
+     If[calculateScore[playerHand] > 21, DialogReturn["bust"], playerTurn[deck, playerHand, dealerHand]];   (* else: richiama la funzione: nuovo turno *)
+     If[decision === "Stand", Return[playerHand]]]];
 
-  (* Funzione per il turno del dealer *)
-  dealerTurn[] :=
-   Module[{},
-    dealerScore = calculateScore[dealerHand];
-    While[dealerScore < 17,
-     AppendTo[dealerHand, RandomChoice[Complement[deck, dealerHand]]];
-     dealerScore = calculateScore[dealerHand];
-     If[dealerScore > 21, Break[]]];
-    dealerScore];
+(* Turno del dealer *)
+dealerTurn[deck_, playerHand_, dealerHand_] :=
+      dealerHand = Join[dealerHand, RandomChoice[Complement[deck, dealerHand, playerHand]]];
+      While[calculateScore[dealerHand] < 17,
+          AppendTo[dealerHand, RandomChoice[Complement[deck, dealerHand, playerHand]]];
+          If[calculateScore[dealerHand] > 21, Break[]]];
+      Return[dealerHand];
 
-  (* Funzione per determinare il vincitore *)
-  determineWinner[] :=
-   Module[{},
+(* Determina vincitore *)
+determineWinner[playerScore_, dealerScore_] :=
     If[playerScore > 21, Return["Il dealer vince!"]];
     If[playerScore == dealerScore, Return["Pareggio!"]];
-    If[dealerScore > 21 || playerScore > dealerScore,
-     Return["Hai vinto!"],
-     Return["Il dealer vince!"]]];
-
-  (* Esecuzione del turno del giocatore *)
-  playerTurn[];
-
-  (* Esecuzione del turno del dealer *)
-  dealerScore = dealerTurn[];
-
-  (* Determina il vincitore *)
-  winner = determineWinner[];
-
-  (* Mostra il risultato finale *)
-  DialogInput[
-   DialogNotebook[{TextCell[
-       "Le tue carte sono: " <> showCards[playerHand] <> ". Totale: " <> ToString[playerScore], "Text"], 
-      TextCell["Le carte del dealer sono: " <> showCards[dealerHand] <> ". Totale: " <> ToString[dealerScore], "Text"], 
-      TextCell[winner, Background -> LightBlue], 
-      Button["Nuova Partita", playBlackjack[]], Button["Quit", DialogReturn[]]}]]]
+    If[dealerScore > 21 || playerScore > dealerScore, Return["Hai vinto!"], Return["Il dealer vince!"]];
 
 End[]
 
