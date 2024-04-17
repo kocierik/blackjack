@@ -42,18 +42,18 @@ playBlackjack[seed_: Automatic] :=
       DialogNotebook[{TextCell[
           "Le tue carte sono: " <> showCards[playerHand] <> ". Totale: " <> ToString[playerScore], "Text"], 
          TextCell["La carta del dealer è: " <> ToString[dealerHand[[1]]] <> ". Totale: " <> ToString[dealerHand[[1]]], "Text"], 
-         TextCell["'hit' o 'stand'?", "Text"], 
-         Grid[{{Button[Hit, DialogReturn["Hit"], 
+         TextCell["HIT o STAND?", "Text"], 
+         Grid[{{Button["Hit", DialogReturn["Hit"], 
             Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
             BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
-           Button[Stand, DialogReturn["Stand"], 
+           Button["Stand", DialogReturn["Stand"], 
             Background -> {Darker[LightGreen, 0.2], Lighter[LightGreen]}, 
             BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]}}]}]];
     If[decision === "Hit",
      AppendTo[playerHand, RandomChoice[Complement[deck, playerHand]]];
      playerScore = calculateScore[playerHand];
-     If[playerScore > 21, DialogReturn["bust"]];
-     playerTurn[], 
+     If[playerScore > 21, DialogReturn["bust"], playerTurn[]];
+
      If[decision === "Stand",
       dealerHand = Join[dealerHand, RandomChoice[Complement[deck, dealerHand]]];
       dealerScore = calculateScore[dealerHand];
