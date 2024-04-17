@@ -1,4 +1,6 @@
 BeginPackage["BlackjackPackage`"];
+ClearAll["BlackjackPackage`*"];
+
 
 playBlackjack::usage = "playBlackjack[] avvia il gioco di Blackjack.";
 
@@ -88,13 +90,30 @@ playBlackjack[seed_: Automatic] :=
   (* Determina il vincitore *)
   winner = determineWinner[];
 
-  (* Mostra il risultato finale *)
-  DialogInput[
+  (* Mostra il risultato finale *)(*(DialogInput[
    DialogNotebook[{TextCell[
        "Le tue carte sono: " <> showCards[playerHand] <> ". Totale: " <> ToString[playerScore], "Text"], 
       TextCell["Le carte del dealer sono: " <> showCards[dealerHand] <> ". Totale: " <> ToString[dealerScore], "Text"], 
       TextCell[winner, Background -> LightBlue], 
-      Button["Nuova Partita", playBlackjack[]], Button["Quit", DialogReturn[]]}]]]
+      Button["Nuova Partita", playBlackjack[]], Button["Quit", DialogReturn[]]}]]*) 
+      
+  Module[{decision},
+    decision = DialogInput[
+      DialogNotebook[{TextCell[
+          "Le tue carte sono: " <> showCards[playerHand] <> ". Totale: " <> ToString[playerScore], "Text"], 
+         TextCell["La carta del dealer è: " <> ToString[dealerHand] <> ". Totale: " <> ToString[dealerScore], "Text"], 
+         TextCell[winner, Background -> LightBlue],
+         Grid[{{Button["Nuova Partita", DialogReturn["NG"], 
+            Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
+            BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
+           Button["Quit", DialogReturn["Quit"], 
+            Background -> {Darker[LightGreen, 0.2], Lighter[LightGreen]}, 
+            BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]}}]}]];
+    If[decision === "NG", playBlackjack[]];
+    If[decision === "Quit", DialogReturn[]]];      
+      
+  ]
+  
 
 End[];
 
