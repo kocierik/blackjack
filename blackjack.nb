@@ -1,4 +1,5 @@
-Needs["BlackjackPackage`"]
+ SetDirectory[NotebookDirectory[]];
 
-playBlackjack[]
+<< BlackjackPackage.m;
 
+playBlackjack[123]
