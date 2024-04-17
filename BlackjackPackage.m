@@ -1,3 +1,9 @@
+BeginPackage["BlackjackPackage`"];
+
+playBlackjack::usage = "playBlackjack[] avvia il gioco di Blackjack.";
+
+Begin["`Private`"];
+
 playBlackjack[seed_: Automatic] :=
  Module[{deck, playerHand, dealerHand, playerScore, dealerScore, 
    playerDecision, dealerDecision, winner},
@@ -14,7 +20,6 @@ playBlackjack[seed_: Automatic] :=
 
   (* Inizializzazione delle mani del giocatore e del dealer *)
   playerHand = RandomSample[deck, 2];
-  (* meglio togliere le carte piuttosto che pescare dal complementare (?) perchè dopo, se si pesca una carta non si tengono in considerazione le carte dell'avversario **** *)
   dealerHand = RandomSample[Complement[deck, playerHand], 2];
 
   (* Inizializzazione del punteggio del giocatore *)
@@ -45,12 +50,11 @@ playBlackjack[seed_: Automatic] :=
             Background -> {Darker[LightGreen, 0.2], Lighter[LightGreen]}, 
             BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]}}]}]];
     If[decision === "Hit",
-     AppendTo[playerHand, RandomChoice[Complement[deck, playerHand]]];(* **** *)
+     AppendTo[playerHand, RandomChoice[Complement[deck, playerHand]]];
      playerScore = calculateScore[playerHand];
      If[playerScore > 21, DialogReturn["bust"]];
-     playerTurn[],  (* richiama la funzione: nuovo turno *)
+     playerTurn[], 
      If[decision === "Stand",
-      (* Se il giocatore sta, il dealer pesca la sua seconda carta *)
       dealerHand = Join[dealerHand, RandomChoice[Complement[deck, dealerHand]]];
       dealerScore = calculateScore[dealerHand];
       Null,
@@ -92,6 +96,7 @@ playBlackjack[seed_: Automatic] :=
       TextCell[winner, Background -> LightBlue], 
       Button["Nuova Partita", playBlackjack[]], Button["Quit", DialogReturn[]]}]]]
 
-(* Avvia il gioco con un seed specifico, ad esempio 123 *)
-playBlackjack[]
+End[];
+
+EndPackage[];
 

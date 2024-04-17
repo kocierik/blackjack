@@ -1,3 +1,4 @@
-  Needs["blackjack"]
+Needs["BlackjackPackage`"]
 
-playBlackjack[123]
+playBlackjack[]
+
