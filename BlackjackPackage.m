@@ -12,13 +12,9 @@ playBlackjack[seed_: Automatic] :=
 
   (* Impostazione del seed se specificato dall'utente. In alternativa viene generato casualmente *)
   If[seed =!= Automatic,
-    Print["Utilizzo del seed specificato: ", seed];
     actualSeed = seed;
     SeedRandom[seed],
-
-    Print["Seed non specificato: genero e utilizzo un seed casuale."];
     actualSeed = RandomInteger[1000000];
-    Print["Il seed generato casualmente è: ", actualSeed];
     SeedRandom[actualSeed],
   ]
   
@@ -59,12 +55,24 @@ playBlackjack[seed_: Automatic] :=
         TextCell["Le tue carte sono: " <> showCards[playerHand] <> ".\nIl tuo punteggio totale è: " <> ToString[playerScore], "Text"], 
          TextCell["La mano del dealer è: " <> ToString[dealerHand[[1]]] <> ".\nIl suo punteggio totale è: " <> ToString[dealerHand[[1]]], "Text"], 
          TextCell["Cosa vuoi fare?", "Text"], 
-         Grid[{{Button["Chiedi Carta", DialogReturn["Hit"], 
+         Grid[{{
+          Button["Chiedi Carta", DialogReturn["Hit"], 
             Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
             BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
-           Button["Stai", DialogReturn["Stand"], 
+          Button["Stai", DialogReturn["Stand"], 
             Background -> {Darker[LightGreen, 0.2], Lighter[LightGreen]}, 
-            BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]}}]}]];
+            BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}],
+          
+          (* Pulsante per cominciare una partita da capo con lo stesso seed*)
+          Button["Ricomincia partita", DialogReturn["Restart"], 
+            Background -> {Darker[LightRed, 0.2], Lighter[LightRed]}, 
+            BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]
+          
+
+          }}]
+      }]
+    ];
+
     If[decision === "Hit",
      AppendTo[playerHand, RandomChoice[Complement[deck, playerHand]]];
      playerScore = calculateScore[playerHand];
@@ -74,7 +82,12 @@ playBlackjack[seed_: Automatic] :=
       dealerHand = Join[dealerHand, RandomChoice[Complement[deck, dealerHand]]];
       dealerScore = calculateScore[dealerHand];
       Null,
-      DialogReturn["cancel"]]]];
+      DialogReturn["cancel"]]
+    ]
+    If[decision === "Restart",
+     DialogReturn["cancel"];
+     playBlackjack[actualSeed]];
+    ];
 
   (* Funzione per il turno del dealer *)
   dealerTurn[] :=
@@ -120,14 +133,33 @@ playBlackjack[seed_: Automatic] :=
           TextCell["Le tue carte sono: " <> showCards[playerHand] <> ".\nIl tuo punteggio finale è: " <> ToString[playerScore], "Text"], 
           TextCell["La mano del dealer è: " <> showCards[dealerHand] <> ".\nIl suo punteggio finale è: " <> ToString[dealerScore], "Text"], 
           TextCell[winner, Background -> LightBlue],
-          Grid[{{Button["Nuova Partita", DialogReturn["NewGame"], 
+          Grid[{{
+            Button["Nuova Partita", DialogReturn["NewGame"], 
               Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
               BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
-            Button["Quit", DialogReturn["Quit"], 
+
+            (* Pulsante per cominciare una partita da capo con lo stesso seed*)
+            Button["Ricomincia partita", DialogReturn["Restart"], 
+              Background -> {Darker[LightRed, 0.2], Lighter[LightRed]}, 
+              BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}],
+
+            Button["Esci", DialogReturn["Quit"], 
               Background -> {Darker[LightGreen, 0.2], Lighter[LightGreen]}, 
-              BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]}}]}]];
-      If[decision === "NewGame", chooseSeed[]];
+              BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]
+          }}]
+        }]
+      ];
+
+      If[decision === "NewGame", 
+        DialogReturn["cancel"];
+        chooseSeed[];
+      ];
+
       If[decision === "Quit", DialogReturn[]];
+      
+      If[decision === "Restart",
+        DialogReturn["cancel"];
+       playBlackjack[actualSeed]];
     ];      
   ]
 End[];
@@ -143,6 +175,7 @@ chooseSeed[] := Module[{inputValue, input},
 ]
 
 (* main code starting *)
+Off[Lookup::invrl];
 chooseSeed[];
 
 EndPackage[];
