@@ -13,9 +13,13 @@ playBlackjack[seed_: Automatic] :=
   (* Impostazione del seed se specificato dall'utente. In alternativa viene generato casualmente *)
   If[seed =!= Automatic,
     Print["Utilizzo del seed specificato: ", seed];
+    actualSeed = seed;
     SeedRandom[seed],
+
     Print["Seed non specificato: genero e utilizzo un seed casuale."];
-    SeedRandom[RandomInteger[1000000]],
+    actualSeed = RandomInteger[1000000];
+    Print["Il seed generato casualmente è: ", actualSeed];
+    SeedRandom[actualSeed],
   ]
   
   (* Pulizia della console: rimuovendo questo comando il codice si bugga *)
@@ -49,8 +53,10 @@ playBlackjack[seed_: Automatic] :=
   playerTurn[] :=
    Module[{decision},
     decision = DialogInput[
-      DialogNotebook[{TextCell[
-          "Le tue carte sono: " <> showCards[playerHand] <> ".\nIl tuo punteggio totale è: " <> ToString[playerScore], "Text"], 
+      DialogNotebook[{
+        (* Stampo il seed attuale*)
+        TextCell["Seed attuale: " <> ToString[actualSeed], "Text"],
+        TextCell["Le tue carte sono: " <> showCards[playerHand] <> ".\nIl tuo punteggio totale è: " <> ToString[playerScore], "Text"], 
          TextCell["La mano del dealer è: " <> ToString[dealerHand[[1]]] <> ".\nIl suo punteggio totale è: " <> ToString[dealerHand[[1]]], "Text"], 
          TextCell["Cosa vuoi fare?", "Text"], 
          Grid[{{Button["Chiedi Carta", DialogReturn["Hit"], 
@@ -109,11 +115,12 @@ playBlackjack[seed_: Automatic] :=
       
   Module[{decision},
     decision = DialogInput[
-      DialogNotebook[{TextCell[
-          "Le tue carte sono: " <> showCards[playerHand] <> ".\nIl tuo punteggio finale è: " <> ToString[playerScore], "Text"], 
-         TextCell["La mano del dealer è: " <> showCards[dealerHand] <> ".\nIl suo punteggio finale è: " <> ToString[dealerScore], "Text"], 
-         TextCell[winner, Background -> LightBlue],
-         Grid[{{Button["Nuova Partita", DialogReturn["NewGame"], 
+      DialogNotebook[{
+        TextCell["Seed utilizzato in questa partita: " <> ToString[actualSeed], "Text"],
+        TextCell["Le tue carte sono: " <> showCards[playerHand] <> ".\nIl tuo punteggio finale è: " <> ToString[playerScore], "Text"], 
+        TextCell["La mano del dealer è: " <> showCards[dealerHand] <> ".\nIl suo punteggio finale è: " <> ToString[dealerScore], "Text"], 
+        TextCell[winner, Background -> LightBlue],
+        Grid[{{Button["Nuova Partita", DialogReturn["NewGame"], 
             Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
             BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
            Button["Quit", DialogReturn["Quit"], 
