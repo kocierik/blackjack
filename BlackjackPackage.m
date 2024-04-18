@@ -42,13 +42,13 @@ playBlackjack[seed_: Automatic] :=
    Module[{decision},
     decision = DialogInput[
       DialogNotebook[{TextCell[
-          "Le tue carte sono: " <> showCards[playerHand] <> ". Totale: " <> ToString[playerScore], "Text"], 
-         TextCell["La carta del dealer è: " <> ToString[dealerHand[[1]]] <> ". Totale: " <> ToString[dealerHand[[1]]], "Text"], 
-         TextCell["HIT o STAND?", "Text"], 
-         Grid[{{Button["Hit", DialogReturn["Hit"], 
+          "Le tue carte sono: " <> showCards[playerHand] <> ".\nIl tuo punteggio totale è: " <> ToString[playerScore], "Text"], 
+         TextCell["La mano del dealer è: " <> ToString[dealerHand[[1]]] <> ".\nIl suo punteggio totale è: " <> ToString[dealerHand[[1]]], "Text"], 
+         TextCell["Cosa vuoi fare?", "Text"], 
+         Grid[{{Button["Chiedi Carta", DialogReturn["Hit"], 
             Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
             BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
-           Button["Stand", DialogReturn["Stand"], 
+           Button["Stai", DialogReturn["Stand"], 
             Background -> {Darker[LightGreen, 0.2], Lighter[LightGreen]}, 
             BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]}}]}]];
     If[decision === "Hit",
@@ -100,8 +100,8 @@ playBlackjack[seed_: Automatic] :=
   Module[{decision},
     decision = DialogInput[
       DialogNotebook[{TextCell[
-          "Le tue carte sono: " <> showCards[playerHand] <> ". Totale: " <> ToString[playerScore], "Text"], 
-         TextCell["La carta del dealer è: " <> ToString[dealerHand] <> ". Totale: " <> ToString[dealerScore], "Text"], 
+          "Le tue carte sono: " <> showCards[playerHand] <> ".\nIl tuo punteggio finale è: " <> ToString[playerScore], "Text"], 
+         TextCell["La mano del dealer è: " <> showCards[dealerHand] <> ".\nIl suo punteggio finale è: " <> ToString[dealerScore], "Text"], 
          TextCell[winner, Background -> LightBlue],
          Grid[{{Button["Nuova Partita", DialogReturn["NG"], 
             Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
