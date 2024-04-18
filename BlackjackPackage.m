@@ -112,37 +112,38 @@ playBlackjack[seed_: Automatic] :=
       TextCell[winner, Background -> LightBlue], 
       Button["Nuova Partita", playBlackjack[]], Button["Quit", DialogReturn[]]}]]
   *) 
-      
-  Module[{decision},
-    decision = DialogInput[
-      DialogNotebook[{
-        TextCell["Seed utilizzato in questa partita: " <> ToString[actualSeed], "Text"],
-        TextCell["Le tue carte sono: " <> showCards[playerHand] <> ".\nIl tuo punteggio finale è: " <> ToString[playerScore], "Text"], 
-        TextCell["La mano del dealer è: " <> showCards[dealerHand] <> ".\nIl suo punteggio finale è: " <> ToString[dealerScore], "Text"], 
-        TextCell[winner, Background -> LightBlue],
-        Grid[{{Button["Nuova Partita", DialogReturn["NewGame"], 
-            Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
-            BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
-           Button["Quit", DialogReturn["Quit"], 
-            Background -> {Darker[LightGreen, 0.2], Lighter[LightGreen]}, 
-            BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]}}]}]];
-    If[decision === "NewGame",
-      inputValue = "";
-      input = DialogInput[{TextCell["Inserisci un nuovo numero da utilizzare come seed:", FontSize -> 12], 
-        InputField[Dynamic[inputValue], Number, ImageSize -> {100,30}, BaseStyle -> {FontSize -> 14}], 
-        Row[{Button["Procedi", DialogReturn[inputValue], ImageSize -> {100, 30}], 
-          Button["Annulla", DialogReturn[], ImageSize -> {100, 30}]}]}];
-
-      If[inputValue =!= "",
-      playBlackjack[inputValue],
-      playBlackjack[],
-      ]
-    ]
-    If[decision === "Quit", DialogReturn[]]];      
+        
+    Module[{decision},
+      decision = DialogInput[
+        DialogNotebook[{
+          TextCell["Seed utilizzato in questa partita: " <> ToString[actualSeed], "Text"],
+          TextCell["Le tue carte sono: " <> showCards[playerHand] <> ".\nIl tuo punteggio finale è: " <> ToString[playerScore], "Text"], 
+          TextCell["La mano del dealer è: " <> showCards[dealerHand] <> ".\nIl suo punteggio finale è: " <> ToString[dealerScore], "Text"], 
+          TextCell[winner, Background -> LightBlue],
+          Grid[{{Button["Nuova Partita", DialogReturn["NewGame"], 
+              Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
+              BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
+            Button["Quit", DialogReturn["Quit"], 
+              Background -> {Darker[LightGreen, 0.2], Lighter[LightGreen]}, 
+              BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]}}]}]];
+      If[decision === "NewGame", chooseSeed[]];
+      If[decision === "Quit", DialogReturn[]];
+    ];      
   ]
-  
-
 End[];
+
+
+chooseSeed[] := Module[{inputValue, input},
+  inputValue = "";
+  input = DialogInput[{TextCell["Inserisci un numero intero da utilizzare come seed:", FontSize -> 12], 
+    InputField[Dynamic[inputValue], Number, ImageSize -> {100,30}, BaseStyle -> {FontSize -> 14}], 
+    Row[{Button["Procedi", DialogReturn[inputValue], ImageSize -> {100, 30}]}]}];
+
+  If[inputValue =!= "", playBlackjack[inputValue], playBlackjack[]]
+]
+
+(* main code starting *)
+chooseSeed[];
 
 EndPackage[];
 
