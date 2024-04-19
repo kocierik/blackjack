@@ -7,7 +7,7 @@ playBlackjack::usage = "playBlackjack[] avvia il gioco di Blackjack.";
 Begin["`Private`"];
 
 playBlackjack[seed_: Automatic] :=
- Module[{deck, playerHand, dealerHand, playerScore, dealerScore, 
+ Module[{deck, playerHand, dealerHand, dealerHand1, playerScore, dealerScore, 
    playerDecision, dealerDecision, winner, playingcardgraphic},
 
   playingcardgraphic = ResourceFunction["PlayingCardGraphic"];
@@ -29,6 +29,8 @@ playBlackjack[seed_: Automatic] :=
   (* Inizializzazione delle mani del giocatore e del dealer *)
   playerHand = RandomSample[Range@52,2];
   dealerHand = RandomSample[Complement[Range@52,playerHand],2];
+  Print[dealerHand1 = Mod[dealerHand[[1]],13]];
+
 
   (* Inizializzazione del punteggio del giocatore *)
   playerScore = Total[If[#>10||#==0,10,If[#==1,11,#]]&/@Mod[playerHand,13]];  (* asso=11 *)
@@ -49,12 +51,14 @@ playBlackjack[seed_: Automatic] :=
     decision = DialogInput[
         DialogNotebook[{
           TextCell["Seed attuale: " <> ToString[actualSeed], "Text"],
-          TextCell["LE TUE CARTE :", "Text"], 
-          playingcardgraphic[playerHand, "CardSpreadAngle" -> 0.1],
-          TextCell["Il tuo punteggio totale \[EGrave]: " <> ToString[calculateScore[playerHand]], "Text"], 
-          TextCell["LA CARTA DEL DEALER: ", "Text"], 
-          playingcardgraphic[dealerHand, "CardSpreadAngle" -> 0.1],
-          TextCell["Il suo punteggio totale \[EGrave]: " <> ToString[If[#>10||#==0,10,If[#==1,11,#]]&/@Mod[dealerHand[[1]],13]], "Text"], 
+          Grid[{
+            {TextCell["LE TUE CARTE :", "Text"], 
+              TextCell["LA CARTA DEL DEALER: ", "Text"]},
+            {playingcardgraphic[playerHand, "CardSpreadAngle" -> 0.1],
+              playingcardgraphic[{0,dealerHand1}, "CardSpreadAngle" -> 0.1]},
+            {TextCell["Il tuo punteggio totale \[EGrave]: " <> ToString[calculateScore[playerHand]], "Text"], 
+              TextCell["Il suo punteggio totale \[EGrave]: " <> ToString[If[(dealerHand1>10)||(dealerHand1==0),10,If[dealerHand1==1,11,dealerHand1]]], "Text"]}
+          }], 
           Grid[{{
             Button["Chiedi Carta", DialogReturn["Hit"], 
               Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
