@@ -171,7 +171,7 @@ playBlackjack[seed_: Automatic] :=
 End[];
 
 
-chooseSeed[] := Module[{inputValue, input},
+chooseSeed[] := Module[{inputValue, input},   (* DynamicModule *)
   inputValue = "";
   input = DialogInput[{TextCell["Inserisci un numero intero da utilizzare come seed:", FontSize -> 12], 
     InputField[Dynamic[inputValue], Number, ImageSize -> {100,30}, BaseStyle -> {FontSize -> 14}], 
