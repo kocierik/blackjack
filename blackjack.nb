@@ -1,7 +1,4 @@
-Quit[];
 SetDirectory[NotebookDirectory[]];
 ClearSystemConsole[];
 
 << BlackjackPackage.m;
-
-During evaluation of In[36]:= 4
