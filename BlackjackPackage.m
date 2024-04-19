@@ -8,7 +8,9 @@ Begin["`Private`"];
 
 playBlackjack[seed_: Automatic] :=
  Module[{deck, playerHand, dealerHand, playerScore, dealerScore, 
-   playerDecision, dealerDecision, winner},
+   playerDecision, dealerDecision, winner, playingcardgraphic},
+
+  playingcardgraphic = ResourceFunction["PlayingCardGraphic"];
 
   (* Impostazione del seed se specificato dall'utente. In alternativa viene generato casualmente *)
   If[seed =!= Automatic,
@@ -22,24 +24,20 @@ playBlackjack[seed_: Automatic] :=
   ClearSystemConsole[];
 
   (* Inizializzazione del mazzo di carte *)
-  deck = Flatten[
-    Table[{11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10}, {4}], 1];
-
-  (* Mescolamento del mazzo *)
-  deck = RandomSample[deck];
+  deck = playingcardgraphic[Range@52];
 
   (* Inizializzazione delle mani del giocatore e del dealer *)
-  playerHand = RandomSample[deck, 2];
-  dealerHand = RandomSample[Complement[deck, playerHand], 2];
+  playerHand = RandomSample[Range@52,2];
+  dealerHand = RandomSample[Complement[Range@52,playerHand],2];
 
   (* Inizializzazione del punteggio del giocatore *)
-  playerScore = Total[playerHand];
+  playerScore = Total[If[#>10||#==0,10,If[#==1,11,#]]&/@Mod[playerHand,13]];  (* asso=11 *)
 
   (* Funzione per calcolare il punteggio *)
   calculateScore[hand_List] :=
    Module[{score},
-    score = Total[hand];
-    If[MemberQ[hand, 11] && score > 21, score -= 10];
+    score = Total[If[#>10||#==0,10,If[#==1,11,#]]&/@Mod[hand,13]];
+    If[MemberQ[Mod[hand,13],1]&&score>21,score-=10];
     score];
 
   (* Funzione per mostrare le carte *)
@@ -49,37 +47,37 @@ playBlackjack[seed_: Automatic] :=
   playerTurn[] :=
    Module[{decision},
     decision = DialogInput[
-      DialogNotebook[{
-        (* Stampo il seed attuale*)
-        TextCell["Seed attuale: " <> ToString[actualSeed], "Text"],
-        TextCell["Le tue carte sono: " <> showCards[playerHand] <> ".\nIl tuo punteggio totale è: " <> ToString[playerScore], "Text"], 
-         TextCell["La mano del dealer è: " <> ToString[dealerHand[[1]]] <> ".\nIl suo punteggio totale è: " <> ToString[dealerHand[[1]]], "Text"], 
-         TextCell["Cosa vuoi fare?", "Text"], 
-         Grid[{{
-          Button["Chiedi Carta", DialogReturn["Hit"], 
-            Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
-            BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
-          Button["Stai", DialogReturn["Stand"], 
-            Background -> {Darker[LightGreen, 0.2], Lighter[LightGreen]}, 
-            BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}],
-          
-          (* Pulsante per cominciare una partita da capo con lo stesso seed*)
-          Button["Ricomincia partita", DialogReturn["Restart"], 
-            Background -> {Darker[LightRed, 0.2], Lighter[LightRed]}, 
-            BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]
-          
-
+        DialogNotebook[{
+          TextCell["Seed attuale: " <> ToString[actualSeed], "Text"],
+          TextCell["LE TUE CARTE :", "Text"], 
+          playingcardgraphic[playerHand, "CardSpreadAngle" -> 0.1],
+          TextCell["Il tuo punteggio totale \[EGrave]: " <> ToString[calculateScore[playerHand]], "Text"], 
+          TextCell["LA CARTA DEL DEALER: ", "Text"], 
+          playingcardgraphic[dealerHand, "CardSpreadAngle" -> 0.1],
+          TextCell["Il suo punteggio totale \[EGrave]: " <> ToString[If[#>10||#==0,10,If[#==1,11,#]]&/@Mod[dealerHand[[1]],13]], "Text"], 
+          Grid[{{
+            Button["Chiedi Carta", DialogReturn["Hit"], 
+              Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
+              BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
+            Button["Stai", DialogReturn["Stand"], 
+              Background -> {Darker[LightGreen, 0.2], Lighter[LightGreen]}, 
+              BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}],
+            
+            (* Pulsante per cominciare una partita da capo con lo stesso seed*)
+            Button["Ricomincia partita", DialogReturn["Restart"], 
+              Background -> {Darker[LightRed, 0.2], Lighter[LightRed]}, 
+              BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]
           }}]
-      }]
-    ];
+        }]
+      ];
 
     If[decision === "Hit",
-     AppendTo[playerHand, RandomChoice[Complement[deck, playerHand]]];
+     AppendTo[playerHand, RandomChoice[Complement[Range@52,playerHand, dealerHand]]];
      playerScore = calculateScore[playerHand];
      If[playerScore > 21, DialogReturn["bust"], playerTurn[]];
 
      If[decision === "Stand",
-      dealerHand = Join[dealerHand, RandomChoice[Complement[deck, dealerHand]]];
+      AppendTo[dealerHand, RandomChoice[Complement[Range@52,playerHand, dealerHand]]];
       dealerScore = calculateScore[dealerHand];
       Null,
       DialogReturn["cancel"]]
@@ -94,7 +92,7 @@ playBlackjack[seed_: Automatic] :=
    Module[{},
     dealerScore = calculateScore[dealerHand];
     While[dealerScore < 17,
-     AppendTo[dealerHand, RandomChoice[Complement[deck, dealerHand]]];
+     AppendTo[dealerHand, RandomChoice[Complement[Range@52,playerHand, dealerHand]]];
      dealerScore = calculateScore[dealerHand];
      If[dealerScore > 21, Break[]]];
     dealerScore];
@@ -129,9 +127,13 @@ playBlackjack[seed_: Automatic] :=
     Module[{decision},
       decision = DialogInput[
         DialogNotebook[{
-          TextCell["Seed utilizzato in questa partita: " <> ToString[actualSeed], "Text"],
-          TextCell["Le tue carte sono: " <> showCards[playerHand] <> ".\nIl tuo punteggio finale è: " <> ToString[playerScore], "Text"], 
-          TextCell["La mano del dealer è: " <> showCards[dealerHand] <> ".\nIl suo punteggio finale è: " <> ToString[dealerScore], "Text"], 
+          TextCell["Seed attuale: " <> ToString[actualSeed], "Text"],
+          TextCell["LE TUE CARTE :", "Text"], 
+          playingcardgraphic[playerHand, "CardSpreadAngle" -> 0.1],
+          TextCell["Il tuo punteggio totale \[EGrave]: " <> ToString[calculateScore[playerHand]], "Text"], 
+          TextCell["LA CARTA DEL DEALER: ", "Text"], 
+          playingcardgraphic[dealerHand, "CardSpreadAngle" -> 0.1],
+          TextCell["Il suo punteggio totale \[EGrave]: " <> ToString[calculateScore[dealerHand]], "Text"], 
           TextCell[winner, Background -> LightBlue],
           Grid[{{
             Button["Nuova Partita", DialogReturn["NewGame"], 
