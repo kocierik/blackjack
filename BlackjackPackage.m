@@ -6,12 +6,11 @@ playBlackjack::usage = "playBlackjack[] avvia il gioco di Blackjack.";
 
 Begin["`Private`"];
 
-playBlackjack[seed_: Automatic] :=
- Module[{deck, playerHand, dealerHand, dealerHand1, playerScore, dealerScore, 
+playBlackjack[playerName_, seed_: Automatic] :=
+ Module[{deck, actualSeed, playerHand, dealerHand, dealerHand1, playerScore, dealerScore, 
    playerDecision, dealerDecision, winner, playingcardgraphic},
 
   playingcardgraphic = ResourceFunction["PlayingCardGraphic"];
-
   (* Impostazione del seed se specificato dall'utente. In alternativa viene generato casualmente *)
   If[seed =!= Automatic,
     actualSeed = seed;
@@ -52,7 +51,7 @@ playBlackjack[seed_: Automatic] :=
         DialogNotebook[{
             Grid[{{TextCell["Seed attuale: " <> ToString[actualSeed], "Text"]}}],
             Grid[{
-            {TextCell["LE TUE CARTE :", "Text"], 
+            {TextCell["LE CARTE DI " <> ToString[playerName] <> ": ", "Text"], 
               TextCell["LA CARTA DEL DEALER: ", "Text"]},
             {playingcardgraphic[playerHand, "CardSpreadAngle" -> 0.1],
               playingcardgraphic[{0, dealerHand1}, "CardSpreadAngle" -> 0.1]},
@@ -88,7 +87,7 @@ playBlackjack[seed_: Automatic] :=
 
       "Restart",
         DialogReturn["cancel"];
-        playBlackjack[actualSeed],
+        playBlackjack[playerName, actualSeed],
 
       _, (* default case *)
         DialogReturn["cancel"]
@@ -112,7 +111,7 @@ playBlackjack[seed_: Automatic] :=
         Switch[True,
             playerScore > 21, "Il dealer vince!",
             playerScore == dealerScore, "Pareggio!",
-            dealerScore > 21 || playerScore > dealerScore, "Hai vinto!",
+            dealerScore > 21 || playerScore > dealerScore, ToString[playerName] <> " hai vinto!",
             True, "Il dealer vince!"
         ]
     ];
@@ -141,16 +140,19 @@ playBlackjack[seed_: Automatic] :=
       DialogNotebook[{
         Grid[{{TextCell["Seed attuale: " <> ToString[actualSeed], "Text"]}}],
         Grid[{
-          {TextCell["LE TUE CARTE :", "Text"], TextCell["LA CARTA DEL DEALER: ", "Text"]},
+          {TextCell["LE CARTE DI " <> ToString[playerName] <> ": ", "Text"], TextCell["LA CARTA DEL DEALER: ", "Text"]},
           {playingcardgraphic[playerHand, "CardSpreadAngle" -> 0.1], playingcardgraphic[dealerHand, "CardSpreadAngle" -> 0.1]},
           {TextCell["Il tuo punteggio totale \[EGrave]: " <> ToString[calculateScore[playerHand]], "Text"], 
           TextCell["Il suo punteggio totale \[EGrave]: " <> ToString[calculateScore[dealerHand]], "Text"]}
         }, Spacings -> {10, 1}],
-        TextCell[winner, Background -> LightBlue],
+        TextCell[winner, Background -> LightBlue, FontSize -> 14],
         Grid[{{Button["Nuova Partita", DialogReturn["NewGame"], 
                 Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
                 BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
               Button["Ricomincia partita", DialogReturn["Restart"], 
+                Background -> {Darker[LightRed, 0.2], Lighter[LightRed]}, 
+                BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}],
+              Button["Cambia giocatore", DialogReturn["chooseCharacter"], 
                 Background -> {Darker[LightRed, 0.2], Lighter[LightRed]}, 
                 BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
               Button["Esci", DialogReturn["Quit"], 
@@ -162,30 +164,44 @@ playBlackjack[seed_: Automatic] :=
     Switch[decision,
       "NewGame", 
         DialogReturn["cancel"];
-        chooseSeed[],
+        chooseSeed[playerName],
       "Quit", 
         DialogReturn[],
       "Restart", 
         DialogReturn["cancel"];
-        playBlackjack[actualSeed]
+        playBlackjack[playerName, actualSeed],
+      "chooseCharacter", 
+        DialogReturn["cancel"];
+        chooseName[];
     ]
   ];      
 ]
 End[];
 
-
-chooseSeed[] := Module[{inputValue, input},   (* DynamicModule *)
+chooseSeed[playerName_] := DynamicModule[{inputValue, input}, 
   inputValue = "";
   input = DialogInput[{TextCell["Inserisci un numero intero da utilizzare come seed:", FontSize -> 12], 
     InputField[Dynamic[inputValue], Number, ImageSize -> {100,30}, BaseStyle -> {FontSize -> 14}], 
     Row[{Button["Procedi", DialogReturn[inputValue], ImageSize -> {100, 30}]}]}];
-
-  If[inputValue =!= "", playBlackjack [inputValue], playBlackjack[]]
+  If[inputValue =!= "", playBlackjack [playerName, inputValue], playBlackjack[playerName]]
 ]
+
+
+chooseName[] := DynamicModule[{input, playerName}, 
+  playerName = "";
+  input = DialogInput[{TextCell["Inserisci il nome del giocatore:", FontSize -> 12], 
+    InputField[Dynamic[playerName], String, ImageSize -> {100,30}, BaseStyle -> {FontSize -> 14}], 
+    Row[{Button["Procedi", DialogReturn[playerName], ImageSize -> {100, 30}]}]}];
+  If[playerName === "", playerName = "Giocatore ignoto"]
+  chooseSeed[playerName];
+ 
+]
+
 
 (* main code starting *)
 Off[Lookup::invrl];
-chooseSeed[];
+(*chooseSeed[];*)
+chooseName[];
 
 EndPackage[];
 
