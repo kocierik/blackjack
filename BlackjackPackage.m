@@ -28,8 +28,7 @@ playBlackjack[playerName_, seed_: Automatic] :=
   (* Inizializzazione delle mani del giocatore e del dealer *)
   playerHand = RandomSample[Range@52,2];
   dealerHand = RandomSample[Complement[Range@52,playerHand],2];
-  dealerHand1 = Mod[dealerHand[[1]],13];
-
+  dealerHand1 = dealerHand[[1]];
 
   (* Inizializzazione del punteggio del giocatore *)
   playerScore = Total[If[#>10||#==0,10,If[#==1,11,#]]&/@Mod[playerHand,13]];  (* asso=11 *)
@@ -55,8 +54,9 @@ playBlackjack[playerName_, seed_: Automatic] :=
               TextCell["LA CARTA DEL DEALER: ", "Text"]},
             {playingcardgraphic[playerHand, "CardSpreadAngle" -> 0.1],
               playingcardgraphic[{0, dealerHand1}, "CardSpreadAngle" -> 0.1]},
+              dealerHand1 = Mod[dealerHand[[1]],13];
             {TextCell["Il tuo punteggio totale \[EGrave]: " <> ToString[calculateScore[playerHand]], "Text"], 
-              TextCell["Il suo punteggio totale \[EGrave]: " <> ToString[If[(dealerHand1>10)||(dealerHand1==0),10,If[dealerHand1==1,11,dealerHand1]]], "Text"]}
+              TextCell["Il suo punteggio totale \[EGrave]: " <> ToString[If[(dealerHand1>10)||(dealerHand1===0),10,If[dealerHand1==1,11,dealerHand1]]], "Text"]}
             },
             Spacings -> {10, 1}
           ], 
@@ -185,6 +185,7 @@ chooseSeed[playerName_] := DynamicModule[{inputValue, input},
     Row[{Button["Procedi", DialogReturn[inputValue], ImageSize -> {100, 30}]}]}];
   If[inputValue =!= "", playBlackjack [playerName, inputValue], playBlackjack[playerName]]
 ]
+
 
 
 chooseName[] := DynamicModule[{input, playerName}, 
