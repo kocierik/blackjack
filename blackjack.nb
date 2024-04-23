@@ -1,5 +1,4 @@
 Quit[];
-
 SetDirectory[NotebookDirectory[]];
 ClearSystemConsole[];
 
