@@ -31,7 +31,14 @@ playBlackjack[playerName_, seed_: Automatic] :=
   dealerHand1 = dealerHand[[1]];
 
   (* Inizializzazione del punteggio del giocatore *)
-  playerScore = Total[If[#>10||#==0,10,If[#==1,11,#]]&/@Mod[playerHand,13]];  (* asso=11 *)
+   valutaCarta[x_/;(x>0||x!=0)] := Print[x];
+  valutaCarta[x_/; x<=0] := Print[x+1];
+  (* Inizializzazione del punteggio del giocatore *)
+  (*playerScore = Total[If[#>10||#==0,10,If[#==1,11,#]]&/@Mod[playerHand,13]];  (* asso=11 *)*)
+  playerScore = Total[
+  Map[valutaCarta, Mod[playerHand, 13]]
+  
+  ];
 
   (* Funzione per calcolare il punteggio *)
   calculateScore[hand_List] :=
