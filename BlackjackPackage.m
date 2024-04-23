@@ -61,17 +61,10 @@ playBlackjack[playerName_, seed_: Automatic] :=
             Spacings -> {10, 1}
           ], 
           Grid[{{
-            Button["Chiedi Carta", DialogReturn["Hit"], 
-              Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
-              BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
-            Button["Stai", DialogReturn["Stand"], 
-              Background -> {Darker[LightGreen, 0.2], Lighter[LightGreen]}, 
-              BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}],
-            
+            Button[Style["Chiedi Carta", 16, Bold], DialogReturn["Hit"]], 
+            Button[Style["Stai", 16, Bold], DialogReturn["Stand"]], 
             (* Pulsante per cominciare una partita da capo con lo stesso seed*)
-            Button["Ricomincia partita", DialogReturn["Restart"], 
-              Background -> {Darker[LightRed, 0.2], Lighter[LightRed]}, 
-              BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]
+            Button[Style["Ricomincia Partita", 16, Bold], DialogReturn["Restart"]], 
           }}]
         }]
       ];
@@ -146,23 +139,22 @@ playBlackjack[playerName_, seed_: Automatic] :=
           TextCell["Il suo punteggio totale \[EGrave]: " <> ToString[calculateScore[dealerHand]], "Text"]}
         }, Spacings -> {10, 1}],
         TextCell[winner, Background -> LightBlue, FontSize -> 14],
-        Grid[{{Button["Nuova Partita", DialogReturn["NewGame"], 
-                Background -> {Darker[LightBlue, 0.2], Lighter[LightBlue]}, 
-                BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
-              Button["Ricomincia partita", DialogReturn["Restart"], 
-                Background -> {Darker[LightRed, 0.2], Lighter[LightRed]}, 
-                BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}],
-              Button["Cambia giocatore", DialogReturn["chooseCharacter"], 
-                Background -> {Darker[LightRed, 0.2], Lighter[LightRed]}, 
-                BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}], 
-              Button["Esci", DialogReturn["Quit"], 
-                Background -> {Darker[LightGreen, 0.2], Lighter[LightGreen]}, 
-                BaseStyle -> {FontSize -> 14, FontWeight -> "Bold", FontFamily -> "Comic Sans MS", Black}]}
-            }]
+        Grid[{
+          {
+            Button[Style["Nuova Partita", 16, Bold], DialogReturn["NewGame"]],
+            Button[Style["Ricomincia partita", 16, Bold], DialogReturn["Restart"]], 
+            Button[Style["Cambia giocatore", 16, Bold], DialogReturn["chooseCharacter"]], 
+            Button[Style["Esci", 16, Bold], DialogReturn["Quit"]]
+          }
+        }]
+
+
+
       }]
     ];
     Switch[decision,
       "NewGame", 
+        DialogReturn[];
         chooseSeed[playerName],
       "Quit", 
         DialogReturn[],
@@ -181,7 +173,7 @@ chooseSeed[playerName_] := DynamicModule[{inputValue, input},
   inputValue = "";
   input = DialogInput[{TextCell["Inserisci un numero intero da utilizzare come seed:", FontSize -> 12], 
     InputField[Dynamic[inputValue], Number, ImageSize -> {100,30}, BaseStyle -> {FontSize -> 14}], 
-    Row[{Button["Procedi", DialogReturn[inputValue], ImageSize -> {100, 30}]}]}];
+    Row[{Button[Style["Procedi", 12, Bold], DialogReturn[inputValue], ImageSize -> {100, 30}]}]}];
   If[inputValue =!= "", playBlackjack [playerName, inputValue], playBlackjack[playerName]]
 ]
 
@@ -191,7 +183,7 @@ chooseName[] := DynamicModule[{input, playerName},
   playerName = "";
   input = DialogInput[{TextCell["Inserisci il nome del giocatore:", FontSize -> 12], 
     InputField[Dynamic[playerName], String, ImageSize -> {100,30}, BaseStyle -> {FontSize -> 14}], 
-    Row[{Button["Procedi", DialogReturn[playerName], ImageSize -> {100, 30}]}]}];
+    Row[{Button[Style["Procedi", 12, Bold], DialogReturn[playerName], ImageSize -> {100, 30}]}]}];
   If[playerName === "", playerName = "Giocatore ignoto"]
   chooseSeed[playerName];
  
