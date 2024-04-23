@@ -27,8 +27,7 @@ playBlackjack[playerName_, seed_: Automatic] :=
 
   (* Inizializzazione delle mani del giocatore e del dealer *)
   playerHand = RandomSample[Range@52,2];
-  (* dealerHand = RandomSample[Complement[Range@52,playerHand],2]; *)
-  dealerHand = {13, 3};
+  dealerHand = RandomSample[Complement[Range@52,playerHand],2];
   dealerHand1 = dealerHand[[1]];
 
   (* Inizializzazione del punteggio del giocatore *)
