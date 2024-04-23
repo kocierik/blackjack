@@ -109,10 +109,10 @@ playBlackjack[playerName_, seed_: Automatic] :=
   determineWinner[] :=
     Module[{},
         Switch[True,
-            playerScore > 21, "Il dealer vince!",
-            playerScore == dealerScore, "Pareggio!",
-            dealerScore > 21 || playerScore > dealerScore, ToString[playerName] <> " hai vinto!",
-            True, "Il dealer vince!"
+            playerScore > 21, "dealer",                 
+            playerScore == dealerScore, "pareggio",    
+            dealerScore > 21 || playerScore > dealerScore, "player",   
+            True, "dealer"                                         
         ]
     ];
 
@@ -138,14 +138,20 @@ playBlackjack[playerName_, seed_: Automatic] :=
   Module[{decision},
     decision = DialogInput[
       DialogNotebook[{
-        Grid[{{TextCell["Seed attuale: " <> ToString[actualSeed], "Text"]}}],
+        Grid[{{TextCell["Seed attuale: " <> ToString[actualSeed], "Text"]}}, ColumnWidths -> {40,40,40}, Alignment -> {Center, Center}],
         Grid[{
           {TextCell["LE CARTE DI " <> ToString[playerName] <> ": ", "Text"], TextCell["LA CARTA DEL DEALER: ", "Text"]},
           {playingcardgraphic[playerHand, "CardSpreadAngle" -> 0.1], playingcardgraphic[dealerHand, "CardSpreadAngle" -> 0.1]},
           {TextCell["Il tuo punteggio totale \[EGrave]: " <> ToString[calculateScore[playerHand]], "Text"], 
           TextCell["Il suo punteggio totale \[EGrave]: " <> ToString[calculateScore[dealerHand]], "Text"]}
         }, Spacings -> {10, 1}],
-        TextCell[winner, Background -> LightBlue, FontSize -> 14],
+        Grid[{
+          {If[winner === "dealer",
+            TextCell["HAI PERSO\nIL DEALER VINCE", "Text", FontColor -> Red, FontWeight -> Bold, TextAlignment -> Center, FontSize -> 20], 
+            If[winner === "player", 
+              TextCell["HAI VINTO!", "Text", FontColor -> Green, FontWeight -> Bold, TextAlignment -> Center, FontSize -> 20],
+              TextCell["PAREGGIO!", "Text", FontColor -> Orange, FontWeight -> Bold, TextAlignment -> Center, FontSize -> 20]]]}
+        }, ColumnWidths -> {40,40,40}, Alignment -> {Center, Center}],
         Grid[{
           {
             Button[Style["Nuova Partita", 16, Bold], DialogReturn["NewGame"]],
