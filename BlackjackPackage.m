@@ -8,7 +8,7 @@ Begin["`Private`"];
 
 playBlackjack[playerName_, seed_: Automatic] :=
  Module[{deck, actualSeed, playerHand, dealerHand, dealerHand1, playerScore, dealerScore, 
-   playerDecision, dealerDecision, winner, playingcardgraphic},
+   playerDecision, dealerDecision, winner, playingcardgraphic, quitgame},
 
   playingcardgraphic = ResourceFunction["PlayingCardGraphic"];
   (* Impostazione del seed se specificato dall'utente. In alternativa viene generato casualmente *)
@@ -16,7 +16,7 @@ playBlackjack[playerName_, seed_: Automatic] :=
     actualSeed = seed;
     SeedRandom[seed],
     actualSeed = RandomInteger[1000000];
-    SeedRandom[actualSeed],
+    SeedRandom[actualSeed]
   ]
   
   (* Pulizia della console: rimuovendo questo comando il codice si bugga *)
@@ -24,7 +24,7 @@ playBlackjack[playerName_, seed_: Automatic] :=
 
   (* Inizializzazione del mazzo di carte *)
   deck = playingcardgraphic[Range@52];
-
+  quitgame = False;
   (* Inizializzazione delle mani del giocatore e del dealer *)
   playerHand = RandomSample[Range@52,2];
   dealerHand = RandomSample[Complement[Range@52,playerHand],2];
@@ -90,7 +90,8 @@ playBlackjack[playerName_, seed_: Automatic] :=
         playBlackjack[playerName, actualSeed],
 
       _, (* default case *)
-        DialogReturn["cancel"]
+        quitgame= True;
+        DialogReturn[]
     ]
 
   ];
@@ -119,31 +120,21 @@ playBlackjack[playerName_, seed_: Automatic] :=
 
   (* Esecuzione del turno del giocatore *)
   playerTurn[];
-
+   
   (* Esecuzione del turno del dealer *)
-  dealerScore = dealerTurn[];
-
-  (* Determina il vincitore *)
-  winner = determineWinner[];
-
-  (* Mostra il risultato finale *)
-  (*(DialogInput[
-   DialogNotebook[{TextCell[
-       "Le tue carte sono: " <> showCards[playerHand] <> ". Totale: " <> ToString[playerScore], "Text"], 
-      TextCell["Le carte del dealer sono: " <> showCards[dealerHand] <> ". Totale: " <> ToString[dealerScore], "Text"], 
-      TextCell[winner, Background -> LightBlue], 
-      Button["Nuova Partita", playBlackjack[]], Button["Quit", DialogReturn[]]}]]
-  *) 
-        
-  Module[{decision},
+   If[quitgame == True, Print["quitto"];Quit[]]
+   If[quitgame == False, Print["non quitto"];dealerScore = dealerTurn[];  winner = determineWinner[];
+   Module[{decision},
     decision = DialogInput[
       DialogNotebook[{
-        Grid[{{TextCell["Seed attuale: " <> ToString[actualSeed], "Text"]}}, ColumnWidths -> {40,40,40}, Alignment -> {Center, Center}],
+        Grid[{
+          {TextCell["Seed attuale: " <> ToString[actualSeed], "Text"]}},
+           ColumnWidths -> {40,40,40}, Alignment -> {Center, Center}],
         Grid[{
           {TextCell["LE CARTE DI " <> ToString[playerName] <> ": ", "Text"], TextCell["LA CARTA DEL DEALER: ", "Text"]},
           {playingcardgraphic[playerHand, "CardSpreadAngle" -> 0.1], playingcardgraphic[dealerHand, "CardSpreadAngle" -> 0.1]},
-          {TextCell["Il tuo punteggio totale \[EGrave]: " <> ToString[calculateScore[playerHand]], "Text"], 
-          TextCell["Il suo punteggio totale \[EGrave]: " <> ToString[calculateScore[dealerHand]], "Text"]}
+          {TextCell["Il tuo punteggio totale è: " <> ToString[calculateScore[playerHand]], "Text"], 
+          TextCell["Il suo punteggio totale è: " <> ToString[calculateScore[dealerHand]], "Text"]}
         }, Spacings -> {10, 1}],
         Grid[{
           {If[winner === "dealer",
@@ -178,28 +169,50 @@ playBlackjack[playerName_, seed_: Automatic] :=
         DialogReturn["cancel"];
         chooseName[];
     ]
-  ];      
+  ];  ];
+ 
+ 
+
+  (* Mostra il risultato finale *)
+  (*(DialogInput[
+   DialogNotebook[{TextCell[
+       "Le tue carte sono: " <> showCards[playerHand] <> ". Totale: " <> ToString[playerScore], "Text"], 
+      TextCell["Le carte del dealer sono: " <> showCards[dealerHand] <> ". Totale: " <> ToString[dealerScore], "Text"], 
+      TextCell[winner, Background -> LightBlue], 
+      Button["Nuova Partita", playBlackjack[]], Button["Quit", DialogReturn[]]}]]
+  *) 
+        
+      
 ]
 End[];
 
-chooseSeed[playerName_] := DynamicModule[{inputValue, input}, 
+evaluateInput[playerName_, inputToEvaluate_/;(inputToEvaluate != "")]:= playBlackjack [playerName, inputToEvaluate];
+evaluateInput[playerName_, inputToEvaluate_/;(inputToEvaluate == "")]:= playBlackjack [playerName];
+chooseSeed[playerName_] := DynamicModule[{inputValue, input, confirmedSeed}, 
   inputValue = "";
+  confirmedSeed = False;
   input = DialogInput[{TextCell["Inserisci un numero intero da utilizzare come seed:", FontSize -> 12], 
     InputField[Dynamic[inputValue], Number, ImageSize -> {100,30}, BaseStyle -> {FontSize -> 14}], 
-    Row[{Button[Style["Procedi", 12, Bold], DialogReturn[inputValue], ImageSize -> {100, 30}]}]}];
-  If[inputValue =!= "", playBlackjack [playerName, inputValue], playBlackjack[playerName]]
+    Row[{Button[Style["Procedi", 12, Bold], (confirmedSeed = True; DialogReturn[inputValue]), ImageSize -> {100, 30}]}],
+    EventHandler[{confirmedSeed},{"MenuCommand", "CancelButton"} :> (confirmedSeed = False; DialogReturn[])];}];
+  
+  If[confirmedSeed, Map[(evaluateInput[playerName, #]) &, {inputValue}]]
 ]
 
 
 
-chooseName[] := DynamicModule[{input, playerName}, 
+chooseName[] := DynamicModule[{input, playerName, confirmedName},
   playerName = "";
+  confirmedName = False; (* Inizializza la variabile confirmed a False *)
   input = DialogInput[{TextCell["Inserisci il nome del giocatore:", FontSize -> 12], 
     InputField[Dynamic[playerName], String, ImageSize -> {100,30}, BaseStyle -> {FontSize -> 14}], 
-    Row[{Button[Style["Procedi", 12, Bold], DialogReturn[playerName], ImageSize -> {100, 30}]}]}];
-  If[playerName === "", playerName = "Giocatore ignoto"]
-  chooseSeed[playerName];
- 
+    Row[{Button[Style["Procedi", 12, Bold], (confirmedName = True; DialogReturn[playerName]), ImageSize -> {100, 30}]}],
+    (* Aggiungi un EventHandler per catturare l'evento di chiusura della finestra di dialogo *)
+    EventHandler[{confirmedName},{"MenuCommand", "CancelButton"} :> (confirmedName = False; DialogReturn[])];
+  }];
+  (* Se l'utente ha confermato l'input, esegui l'istruzione If *)
+  If[confirmedName && playerName === "", playerName = "Giocatore ignoto"];
+  If[confirmedName, chooseSeed[playerName]]; (* Chiamata a chooseSeed solo se l'utente ha confermato l'input *)
 ]
 
 
