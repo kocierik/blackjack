@@ -1,4 +1,4 @@
-Quit[];
+In[5]:=
 SetDirectory[NotebookDirectory[]];
 ClearSystemConsole[];
 
