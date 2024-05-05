@@ -1,5 +1,4 @@
-In[5]:=
 SetDirectory[NotebookDirectory[]];
 ClearSystemConsole[];
 
-<< BlackjackPackage.m;
+<< BlackjackPackageFinal.m;

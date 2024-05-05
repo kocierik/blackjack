@@ -8,8 +8,7 @@ chooseName::usage = "Lets the user pick his own player name";
 
 Begin["`Private`"];
 
-(* PARAMETRI *)
-const 
+(* PARAMETERS *) 
 
 playBlackjack[playerName_, seed_: Automatic] :=
  Module[{actualSeed, playerHand, dealerHand, dealerHand1, playerScore, dealerScore, 
