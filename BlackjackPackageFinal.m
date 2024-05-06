@@ -55,7 +55,7 @@ Module[{decision, playedSeed, playingGamer},
             Button[
               Style["Procedi", fontSize, Bold],
               (* button pressed action *)
-              (If[playerName === "", playerName = "Giulia";];   (* if no name is inserted, default name is "Giulia" *)
+              (If[playerName === "", playerName = Null;];   (* if no name is inserted *)
               phase = "chooseSeed";),    (* when "Procedi" button is pressed, continue with chooseSeed section *)
               ImageSize -> {buttonSizeX, buttonSizeY},
               Appearance -> {"DialogBox"}
@@ -112,7 +112,7 @@ Module[{decision, playedSeed, playingGamer},
             Grid[{{TextCell["Seed attuale: " <> ToString[actualSeed], "Text", FontSize -> fontSize]}}],   (* insert in a Grid element in order to center TextCell horizontally *)
             Grid[{
             (* Intestation row *)
-              {If[playerName === "",
+              {If[playerName === Null,
                 TextCell["LE TUE CARTE", "Text", FontSize -> fontSize],
                 TextCell["LE CARTE DI " <> ToString[playerName] <> ": ", "Text", FontSize -> fontSize]], 
                 TextCell["LA CARTA DEL DEALER: ", "Text", FontSize -> fontSize]},
