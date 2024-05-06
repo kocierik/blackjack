@@ -55,7 +55,8 @@ Module[{decision, playedSeed, playingGamer},
             Button[
               Style["Procedi", fontSize, Bold],
               (* button pressed action *)
-              phase = "chooseSeed";,    (* when "Procedi" button is pressed, continue with chooseSeed section *)
+              (If[playerName === "", playerName = "Giulia";];   (* if no name is inserted, default name is "Giulia" *)
+              phase = "chooseSeed";),    (* when "Procedi" button is pressed, continue with chooseSeed section *)
               ImageSize -> {buttonSizeX, buttonSizeY},
               Appearance -> {"DialogBox"}
             ]
@@ -134,7 +135,7 @@ Module[{decision, playedSeed, playingGamer},
                 playerScore = calculateScore[playerHand];  (* update playerScore *)
                 If[playerScore > 21,
                   phase = "determineWinner";,    (* if player goes out of bound, game over *)
-                  phase = "playerTurn";]),       (* otherwise, player goes on with his turn *)
+                  phase = "playerTurn";];),       (* otherwise, player goes on with his turn *)
                 ImageSize -> {inputFieldSizeX, inputFieldSizeY},
                 Appearance -> {"DialogBox"}
               ],
@@ -193,8 +194,6 @@ Module[{decision, playedSeed, playingGamer},
                 playerScore = calculateScore[playerHand];
                 dealerScore = calculateScore[dealerHand];
 
-                Print["playerHand: ", playerScore, " dealareHand: ", dealerScore];
-
                 If[playerScore > 21,    (* player goes out of bound *)
                   winner = "dealer";,
                   If[playerScore === dealerScore,  (* same score *)
@@ -202,9 +201,7 @@ Module[{decision, playedSeed, playingGamer},
                     If[dealerScore > 21 || playerScore > dealerScore,   (* dealer goes out of bound or player'score is higher *)
                       winner = "player";,
                         winner = "dealer";    (* dealer'score is higher *)
-                ]]]
-
-                Print["winner: ", winner];
+                ];];];
 
                 If[winner === "dealer",
                   TextCell["HAI PERSO\nIL DEALER VINCE", "Text", FontColor -> Red, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizeWin], 
