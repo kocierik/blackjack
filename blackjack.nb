@@ -1,4 +1,4 @@
 SetDirectory[NotebookDirectory[]];
 ClearSystemConsole[];
 
-<< BlackjackPackageFinal.m;
+<< BlackjackPackageFullScreen.m;

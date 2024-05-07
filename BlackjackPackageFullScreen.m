@@ -3,14 +3,13 @@
 BeginPackage["BlackjackPackage`"];
 ClearAll["BlackjackPackage`*"];
 
-
 playBlackjack::usage = "playBlackjack[] avvia il gioco di Blackjack.";
 
 Begin["`Private`"];
 
 (* Parameters *)
 fontSize = 20;
-fontSizeWin = 24;
+fontSizePlus = 30;
 inputFieldSizeX = 200;
 inputFieldSizeY = 50;
 buttonSizeX = 100;
@@ -47,7 +46,11 @@ Module[{decision, playedSeed, playingGamer},
 
       (* CASE chooseName *)
         "chooseName", 
-          If[playerName =!= "", phase = "chooseSeed";];   (* when "Ricomincia partita" and "Nuova partira" buttons are pressed *)
+          If[playerName =!= "" && actualSeed === "",    (* when "Nuova partira" button is pressed *)
+            phase = "chooseSeed";];   
+          If[playerName =!= "" && actualSeed =!= "",    (* when "Ricomincia partita" button is pressed *)
+            phase = "skipSeed";];
+
           Column[{
             TextCell["Inserisci il nome del giocatore", FontSize -> fontSize],
             InputField[Dynamic[playerName], String, ImageSize -> {inputFieldSizeX, inputFieldSizeY}, BaseStyle -> {FontSize -> fontSize}],
@@ -55,30 +58,35 @@ Module[{decision, playedSeed, playingGamer},
             Button[
               Style["Procedi", fontSize, Bold],
               (* button pressed action *)
-              (If[playerName === "", playerName = Null;];   (* if no name is inserted *)
+              (If[playerName === "", playerName = "checkvuoto";];   (* if no name is inserted *)
               phase = "chooseSeed";),    (* when "Procedi" button is pressed, continue with chooseSeed section *)
               ImageSize -> {buttonSizeX, buttonSizeY},
               Appearance -> {"DialogBox"}
             ]
           }, Center],
 
+      (* CASE skipSeed *)
+        "skipSeed",     (* when play restarted: when the playBlackjack function is called with seed parameter  *)
+          SeedRandom[actualSeed];
+
+          (* Player and Dealer hands initialized (here beacause it has to be done after seed is set) *)
+          playerHand = RandomSample[Range@52,2];                          (* two random cards from deck [1,52] *)
+          dealerHand = RandomSample[Complement[Range@52,playerHand],2];   (* two random cards from deck excluding player cards *)
+          dealerHand1 = dealerHand[[1]];                                  (* first dealer card, used when showing dealer card during playerTurn *)
+          (* Initializing player and dealer score *)
+          playerScore = calculateScore[playerHand];
+          dealerScore = calculateScore[dealerHand];
+
+          (* Pause[5]; *)
+          phase = "playerTurn";
+          
+          Column[{TextCell["CARICAMENTO...", "Text", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus]}, Center],
+
+          (* Column[{TextCell["IL VINCITORE È...", "Text", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus]}, Center], *)
+          (* Pause[2];, *)
+
       (* CASE chooseSeed *)
-        "chooseSeed",
-          If[actualSeed =!= "",     (* when "Ricomincia partita" button is pressed *)
-          (* second or more play: when the playBlackjack function is called with seed parameter  *)
-            SeedRandom[actualSeed];
-
-            (* Player and Dealer hands initialized (here beacause it has to be done after seed is set) *)
-            playerHand = RandomSample[Range@52,2];                          (* two random cards from deck [1,52] *)
-            dealerHand = RandomSample[Complement[Range@52,playerHand],2];   (* two random cards from deck excluding player cards *)
-            dealerHand1 = dealerHand[[1]];                                  (* first dealer card, used when showing dealer card during playerTurn *)
-            (* Initializing player and dealer score *)
-            playerScore = calculateScore[playerHand];
-            dealerScore = calculateScore[dealerHand];
-
-            phase = "playerTurn";    
-          ];  
-        
+        "chooseSeed",        
           Column[{
             TextCell["Inserisci un numero intero da utilizzare come seed", FontSize -> fontSize],
             InputField[Dynamic[inputValue], Number, ImageSize -> {inputFieldSizeX, inputFieldSizeY}, BaseStyle -> {FontSize -> fontSize}],
@@ -112,10 +120,10 @@ Module[{decision, playedSeed, playingGamer},
             Grid[{{TextCell["Seed attuale: " <> ToString[actualSeed], "Text", FontSize -> fontSize]}}],   (* insert in a Grid element in order to center TextCell horizontally *)
             Grid[{
             (* Intestation row *)
-              {If[playerName === Null,
+              {If[playerName === "checkvuoto",
                 TextCell["LE TUE CARTE", "Text", FontSize -> fontSize],
-                TextCell["LE CARTE DI " <> ToString[playerName] <> ": ", "Text", FontSize -> fontSize]], 
-                TextCell["LA CARTA DEL DEALER: ", "Text", FontSize -> fontSize]},
+                TextCell["LE CARTE DI " <> ToString[playerName], "Text", FontSize -> fontSize]], 
+                TextCell["LA CARTA DEL DEALER", "Text", FontSize -> fontSize]},
             (* Cards row *)
               {playingcardgraphic[playerHand, "CardSpreadAngle" -> 0.1],
                 playingcardgraphic[{0, dealerHand1}, "CardSpreadAngle" -> 0.1]},
@@ -124,7 +132,7 @@ Module[{decision, playedSeed, playingGamer},
               {TextCell["Il tuo punteggio totale è: " <> ToString[calculateScore[playerHand]], "Text", FontSize -> fontSize], 
                 TextCell["Il suo punteggio parziale è: " <> ToString[If[(dealerHandValue>10)||(dealerHandValue===0),10,If[dealerHandValue==1,11,dealerHandValue]]], "Text", FontSize -> fontSize]} (* Print the value of the dealer's visible card *)
               },
-              Spacings -> {20, 2}
+              Spacings -> {20, 5}
             ], 
             Row[{
               (* "chiedi carta" button *)
@@ -167,18 +175,22 @@ Module[{decision, playedSeed, playingGamer},
             AppendTo[dealerHand, RandomChoice[Complement[Range@52, playerHand, dealerHand]]];
             dealerScore = calculateScore[dealerHand];     (* update dealerScore *)
           ];
-          phase = "determineWinner";,
+
+          phase = "determineWinner";
+          
+          Column[{TextCell["IL VINCITORE È...", "Text", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus]}, Center],
 
         (* CASE determineWinner *)
         "determineWinner",
+          Pause[1];
           Column[{
             Grid[{{TextCell["Seed attuale: " <> ToString[actualSeed], "Text", FontSize -> fontSize]}}],   (* insert in a Grid element in order to center TextCell horizontally *)
             Grid[{
             (* Intestation row *)
-              {If[playerName === "",
+              {If[playerName === "checkvuoto",
                 TextCell["LE TUE CARTE", "Text", FontSize -> fontSize],
-                TextCell["LE CARTE DI " <> ToString[playerName] <> ": ", "Text", FontSize -> fontSize]], 
-                TextCell["LE CARTE DEL DEALER: ", "Text", FontSize -> fontSize]},
+                TextCell["LE CARTE DI " <> ToString[playerName], "Text", FontSize -> fontSize]], 
+                TextCell["LE CARTE DEL DEALER", "Text", FontSize -> fontSize]},
             (* Cards row *)
               {playingcardgraphic[playerHand, "CardSpreadAngle" -> 0.1],
                 playingcardgraphic[dealerHand, "CardSpreadAngle" -> 0.1]},
@@ -186,7 +198,7 @@ Module[{decision, playedSeed, playingGamer},
               {TextCell["Il tuo punteggio totale è: " <> ToString[calculateScore[playerHand]], "Text", FontSize -> fontSize], 
                 TextCell["Il suo punteggio totale è: " <> ToString[calculateScore[dealerHand]], "Text", FontSize -> fontSize]}
               },
-              Spacings -> {20, 2}
+              Spacings -> {20, 5}
             ],
             (* Winner message *)
             Grid[{
@@ -204,10 +216,10 @@ Module[{decision, playedSeed, playingGamer},
                 ];];];
 
                 If[winner === "dealer",
-                  TextCell["HAI PERSO\nIL DEALER VINCE", "Text", FontColor -> Red, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizeWin], 
+                  TextCell["HAI PERSO\nIL DEALER VINCE", "Text", FontColor -> Red, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus], 
                 If[winner === "player", 
-                  TextCell["HAI VINTO!", "Text", FontColor -> Green, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizeWin],
-                  TextCell["PAREGGIO!", "Text", FontColor -> Orange, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizeWin]]
+                  TextCell["HAI VINTO!", "Text", FontColor -> Green, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus],
+                  TextCell["PAREGGIO!", "Text", FontColor -> Orange, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus]]
                 ]}
               }, ColumnWidths -> {40,40,40}, Alignment -> {Center, Center}
             ],
@@ -240,9 +252,9 @@ Module[{decision, playedSeed, playingGamer},
               Button[
                 (* Closes window *)
                 Style["Esci", fontSize, Bold], 
-                DialogReturn["Quit"],          
+                DialogReturn["Quit"];,          
                 ImageSize -> {inputFieldSizeX, inputFieldSizeY}
-              ],
+              ]
             }, "   "]
           }, Center],   (* Center parameter align column content *)
 
@@ -268,7 +280,7 @@ Module[{decision, playedSeed, playingGamer},
       playBlackjack[];,      
     _, 
       Quit[];
-  ]
+  ];
 ];
 
 End[];
