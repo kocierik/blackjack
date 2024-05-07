@@ -121,7 +121,7 @@ Module[{decision, playedSeed, playingGamer},
               Appearance -> {"DialogBox"}
             ],
             
-            TextCell["Attenzione! È possibile inserire solo numeri!",  FontColor -> Red, FontSize -> fontSizeDisclaimer]
+            TextCell["Attenzione! È possibile inserire solo numeri!\nNon inserendo un seed questo verrà generato casualmente.",  FontColor -> Red, FontSize -> fontSizeDisclaimer]
           }, Center, Spacings -> buttonProcediSpacingDisclaimer],
 
       (* CASE playerTurn *)
