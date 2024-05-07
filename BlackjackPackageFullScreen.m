@@ -101,7 +101,8 @@ Module[{decision, playedSeed, playingGamer},
             Button[
               Style["Procedi", fontSize, Bold], 
               (* button pressed action *)
-              (If[inputValue != "", 
+              ( Pause[0.8];     (* used to wait the inputValue dynamic variable update *)
+                If[inputValue != "", 
                   actualSeed = inputValue; SeedRandom[inputValue];,                (* seed entered *)
                   actualSeed = RandomInteger[1000000]; SeedRandom[actualSeed];    (* seed not entered -> random *)
                 ];
