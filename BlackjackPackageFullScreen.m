@@ -7,6 +7,9 @@ playBlackjack::usage = "playBlackjack[] avvia il gioco di Blackjack.";
 
 Begin["`Private`"];
 
+(* Import Graphic library for cards *)
+playingcardgraphic = ResourceFunction["PlayingCardGraphic"];
+
 (* Parameters *)
 fontSize = 20;
 fontSizeDisclaimer = 15;
@@ -28,9 +31,6 @@ Module[{decision, playedSeed, playingGamer},
     DynamicModule[{playerName = insertedName, phase = "chooseName", inputValue = ""},
 
       actualSeed = insertedSeed;
-    
-      (* Import Graphic library for cards *)
-      playingcardgraphic = ResourceFunction["PlayingCardGraphic"];
 
       (* Calculate score function *)
       calculateScore[hand_List] :=
@@ -38,7 +38,7 @@ Module[{decision, playedSeed, playingGamer},
         score = Total[If[#>10||#==0,10,If[#==1,11,#]]&/@Mod[hand,13]];    (* for each card [1,52] calculates card%13, if > 10 then real value = 10, if = 11 then real value = 11 *)
         aces = Count[Mod[hand,13], 1];    (* count the number of aces in given hand *)
         While[aces > 0,               (* each ace values 1 if the current score is > 21 *)
-          If[score>21, score-=10];
+          If[score>21, score-=10];    (* aces values depends on the total score *)
           aces -= 1;
         ];
         score]; (* return score *)
@@ -72,7 +72,7 @@ Module[{decision, playedSeed, playingGamer},
           }, Center, Spacings -> buttonProcediSpacing],
 
       (* CASE skipSeed *)
-        "skipSeed",     (* when play restarted: when the playBlackjack function is called with seed parameter  *)
+        "skipSeed",     (* when the game is restarted, the playBlackjack function is called with seed parameter  *)
           SeedRandom[actualSeed];
 
           (* Player and Dealer hands initialized (here beacause it has to be done after seed is set) *)
