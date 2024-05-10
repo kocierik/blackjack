@@ -20,33 +20,55 @@ buttonProcediSpacing = {3, 2, 2};
 buttonProcediSpacingDisclaimer = {3, 2, 2, 4};
 columnSpacing = {3, 3, 3};
 
+(* parameters used when starting new game, same game or changing player name *)
+playedSeed = "";
+playingGamer = "";
+
+
+(* Calculate score function *)
+calculateScore[hand_List] :=
+  Module[{score},
+    score = Total[If[#>10||#==0,10,If[#==1,11,#]]&/@Mod[hand,13]];    (* for each card [1,52] calculates card%13, if > 10 then real value = 10, if = 11 then real value = 11 *)
+    aces = Count[Mod[hand,13], 1];    (* count the number of aces in given hand *)
+    While[aces > 0,               (* each ace values 1 if the current score is > 21 *)
+      If[score>21, score-=10];
+      aces -= 1;
+    ];
+  score]; (* return score *)
+
 playBlackjack[insertedName_:"", insertedSeed_:""] := 
-Module[{decision, playedSeed, playingGamer},
-  (* Cleaning the console *)
-  ClearSystemConsole[];
+  Module[{decision},
+    (* Cleaning the console *)
+    ClearSystemConsole[];
+
+    (*Import Graphic library for cards *)
+    playingcardgraphic = ResourceFunction["PlayingCardGraphic"];
+
+    decision = singlePlay[insertedName, insertedSeed];
+
+    (* Evaluate decision *)
+    Switch[decision,    
+      "NewGame",
+        playBlackjack[playingGamer];,
+      "Quit", 
+        Quit[];,
+      "Restart", 
+        playBlackjack[playingGamer, playedSeed];, 
+      "chooseCharacter", 
+        playBlackjack[];,      
+      _, 
+        Quit[];
+    ];
+  ];  
   
-  decision = DialogInput[
-    DynamicModule[{playerName = insertedName, phase = "chooseName", inputValue = ""},
 
-      actualSeed = insertedSeed;
-    
-      (* Import Graphic library for cards *)
-      playingcardgraphic = ResourceFunction["PlayingCardGraphic"];
+singlePlay[insertedName_, insertedSeed_] :=
+  DialogInput[DynamicModule[{playerName = insertedName, phase = "chooseName", inputValue = ""},
 
-      (* Calculate score function *)
-      calculateScore[hand_List] :=
-      Module[{score},
-        score = Total[If[#>10||#==0,10,If[#==1,11,#]]&/@Mod[hand,13]];    (* for each card [1,52] calculates card%13, if > 10 then real value = 10, if = 11 then real value = 11 *)
-        aces = Count[Mod[hand,13], 1];    (* count the number of aces in given hand *)
-        While[aces > 0,               (* each ace values 1 if the current score is > 21 *)
-          If[score>21, score-=10];
-          aces -= 1;
-        ];
-        score]; (* return score *)
+    actualSeed = insertedSeed;
 
-
-      (* dynamic function that manage the dynamic game state *)
-      Dynamic[
+    (* dynamic function that manage the dynamic game state *)
+    Dynamic[
       Switch[phase,    (* phase variable is set with the current game state *)
 
       (* CASE chooseName *)
@@ -59,7 +81,7 @@ Module[{decision, playedSeed, playingGamer},
           Column[{
             TextCell["BLACKJACK", "Text", FontFamily -> "Times", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizeTitle],
 
-            TextCell["Inserisci il nome del giocatore", FontSize -> fontSize],
+            TextCell["Inserisci il " Style["nome del giocatore", Bold], "Text", FontFamily -> "Helvetica", FontSize -> fontSize],
             InputField[Dynamic[playerName], String, ImageSize -> inputFieldSizes, BaseStyle -> {FontSize -> fontSize}],
 
             Button[
@@ -89,14 +111,14 @@ Module[{decision, playedSeed, playingGamer},
           Column[{
             TextCell["BLACKJACK", "Text", FontFamily -> "Times", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizeTitle],
             TextCell["CARICAMENTO...", "Text", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus]
-          }, Center, Spacings -> {5}],
+          }, Center, Spacings -> {15}],
 
       (* CASE chooseSeed *)
         "chooseSeed",        
           Column[{
             TextCell["BLACKJACK", "Text", FontFamily -> "Times", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizeTitle],
 
-            TextCell["Inserisci un numero intero da utilizzare come seed", FontSize -> fontSize],
+            TextCell["Inserisci un numero intero da utilizzare come " Style["seed", Bold], "Text", FontFamily -> "Helvetica", FontSize -> fontSize],
             InputField[Dynamic[inputValue], Number, ImageSize -> inputFieldSizes, BaseStyle -> {FontSize -> fontSize}],
 
             Button[
@@ -195,7 +217,7 @@ Module[{decision, playedSeed, playingGamer},
           Column[{
             TextCell["BLACKJACK", "Text", FontFamily -> "Times", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizeTitle],
             TextCell["IL VINCITORE È...", "Text", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus]
-          }, Center, Spacings -> {5}],
+          }, Center, Spacings -> {15}],
 
         (* CASE determineWinner *)
         "determineWinner",
@@ -287,20 +309,6 @@ Module[{decision, playedSeed, playingGamer},
       WindowSize -> {Scaled[1], Scaled[1]}
   ];   (* end DialogInput *)
 
-  (* Evaluate decision *)
-  Switch[decision,    
-    "NewGame",
-      playBlackjack[playingGamer];,
-    "Quit", 
-      Quit[];,
-    "Restart", 
-      playBlackjack[playingGamer, playedSeed];, 
-    "chooseCharacter", 
-      playBlackjack[];,      
-    _, 
-      Quit[];
-  ];
-];
 
 End[];
 
