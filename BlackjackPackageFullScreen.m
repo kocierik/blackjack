@@ -87,7 +87,7 @@ singlePlay[insertedName_, insertedSeed_] :=
             Button[
               Style["Procedi", fontSize, Bold],
               (* button pressed action *)
-              (If[playerName === "", playerName = "checkvuoto";];   (* if no name is inserted *)
+              (If[playerName === "", playerName = "Anonimo";];   (* if no name is inserted *)
               phase = "chooseSeed";),    (* when "Procedi" button is pressed, continue with chooseSeed section *)
               ImageSize -> buttonSizes,
               Appearance -> {"DialogBox"}
@@ -117,10 +117,19 @@ singlePlay[insertedName_, insertedSeed_] :=
         "chooseSeed",        
           Column[{
             TextCell["BLACKJACK", "Text", FontFamily -> "Times", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizeTitle],
-
+            TextCell["Ciao, " Style[playerName, Bold], "Text", FontFamily -> "Helvetica", FontSize -> fontSize],
+            
             TextCell["Inserisci un numero intero da utilizzare come " Style["seed", Bold], "Text", FontFamily -> "Helvetica", FontSize -> fontSize],
             InputField[Dynamic[inputValue], Number, ImageSize -> inputFieldSizes, BaseStyle -> {FontSize -> fontSize}],
 
+            Button[
+              Style["Indietro", fontSize, Bold],
+              (* button pressed action *)
+              playerName = "";
+              phase = "chooseName";,    (* when "Procedi" button is pressed, continue with chooseSeed section *)
+              ImageSize -> buttonSizes,
+              Appearance -> {"DialogBox"}
+            ]
             Button[
               Style["Procedi", fontSize, Bold], 
               (* button pressed action *)
@@ -156,7 +165,7 @@ singlePlay[insertedName_, insertedSeed_] :=
             Grid[{{TextCell["Seed: " <> ToString[actualSeed], "Text", FontSize -> fontSize]}}],   (* insert in a Grid element in order to center TextCell horizontally *)
             Grid[{
             (* Intestation row *)
-              {If[playerName === "checkvuoto",
+              {If[playerName === "Anonimo",
                 TextCell["LE TUE CARTE", "Text", FontWeight -> Bold, FontSize -> fontSize],
                 TextCell["LE CARTE DI " <> ToString[playerName], "Text", FontWeight -> Bold, FontSize -> fontSize]], 
                 TextCell["LA CARTA DEL DEALER", "Text", FontWeight -> Bold, FontSize -> fontSize]},
@@ -228,7 +237,7 @@ singlePlay[insertedName_, insertedSeed_] :=
             Grid[{{TextCell["Seed: " <> ToString[actualSeed], "Text", FontSize -> fontSize]}}],   (* insert in a Grid element in order to center TextCell horizontally *)
             Grid[{
             (* Intestation row *)
-              {If[playerName === "checkvuoto",
+              {If[playerName === "Anonimo",
                 TextCell["LE TUE CARTE", "Text", FontWeight -> Bold, FontSize -> fontSize],
                 TextCell["LE CARTE DI " <> ToString[playerName], "Text", FontWeight -> Bold, FontSize -> fontSize]], 
                 TextCell["LE CARTE DEL DEALER", "Text", FontWeight -> Bold, FontSize -> fontSize]},
