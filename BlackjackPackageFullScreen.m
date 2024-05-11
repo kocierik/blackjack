@@ -10,7 +10,7 @@ Begin["`Private`"];
 (* Parameters *)
 fontSize = 20;
 fontSizeDisclaimer = 15;
-fontSizePlus = 30;
+fontSizePlus = 28;
 fontSizeTitle = 35;
 inputFieldSizes = {200, 50};
 buttonSizes = {100, 50};
@@ -24,6 +24,12 @@ columnSpacing = {3, 3, 3};
 playedSeed = "";
 playingGamer = "";
 
+(* Parameters used to keep history *)
+win = 0;
+lose = 0;
+draw = 0;
+(* historyFlag is used to avoid that the history counter keep increasing more the it should *)
+historyFlag = False;
 
 (* Calculate score function *)
 calculateScore[hand_List] :=
@@ -266,11 +272,33 @@ singlePlay[insertedName_, insertedSeed_] :=
                 ];];];
 
                 If[winner === "dealer",
-                  TextCell["HAI PERSO\nIL DEALER VINCE", "Text", FontColor -> Red, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus], 
-                If[winner === "player", 
-                  TextCell["HAI VINTO!", "Text", FontColor -> Green, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus],
-                  TextCell["PAREGGIO!", "Text", FontColor -> Orange, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus]]
-                ]}
+                    (
+                      If[!historyFlag,
+                        lose = lose + 1;
+                        historyFlag = True;
+                      ];
+                      TextCell["HAI PERSO, IL DEALER VINCE!", "Text", FontColor -> Red, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus]
+                    ),
+                If[winner === "player",
+                    (
+                      If[!historyFlag,
+                        win = win + 1;
+                        historyFlag = True;
+                      ];
+
+                      TextCell["HAI VINTO!", "Text", FontColor -> Green, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus]
+                    ),
+                    (
+                      If[!historyFlag,
+                        draw = draw + 1;
+                        historyFlag = True;
+                      ];
+                      TextCell["PAREGGIO!", "Text", FontColor -> Orange, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus]
+                    ) 
+                  ]
+                ]
+                }
+                  TextCell["Vittorie: " <> ToString[win] <> " - Sconfitte: " <> ToString[lose] <> " - Pareggi: " <> ToString[draw], "Text", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSize]
               }, ColumnWidths -> columnWidthValues, Alignment -> {Center, Center}
             ],
             Row[{
@@ -278,6 +306,7 @@ singlePlay[insertedName_, insertedSeed_] :=
               Button[
                 (* Stat a new game with the same player name*) 
                 Style["Nuova Partita", fontSize, Bold], 
+                historyFlag = False;
                 playingGamer = playerName;
                 DialogReturn["NewGame"];,         
                 ImageSize -> inputFieldSizes
@@ -286,6 +315,7 @@ singlePlay[insertedName_, insertedSeed_] :=
               Button[
                 (* Restart the game with the same seed and same player name *)
                 Style["Ricomincia Partita", fontSize, Bold], 
+                historyFlag = False;
                 playedSeed = actualSeed;
                 playingGamer = playerName;
                 DialogReturn["Restart"];,                  
@@ -295,6 +325,7 @@ singlePlay[insertedName_, insertedSeed_] :=
               Button[
                 (* Let the user change his player name *)
                 Style["Cambia giocatore", fontSize, Bold],
+                historyFlag = False;
                 DialogReturn["chooseCharacter"];,                  
                 ImageSize -> inputFieldSizes
               ],
@@ -323,7 +354,6 @@ End[];
 
 
 (* main code starting *)
-Off[Lookup::invrl];
 playBlackjack[];
 
 
