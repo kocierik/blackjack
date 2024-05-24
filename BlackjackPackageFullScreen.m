@@ -6,15 +6,14 @@ ClearAll["BlackjackPackage`*"];
 playBlackjack::usage = "playBlackjack[] avvia il gioco di Blackjack.";
 calculateScore::usage = "calculateScore[hand_] calcola il punteggio della mano di gioco data in input.";
 checkInputSeed::usage = "checkInputSeed[input_] viene utilizzata nel momento in cui l'utente preme il tasto 'Procedi' nella fase di inserimento del seed. Verifica se il valore dato in input è valido come seed (ritorna True) oppure no (ritorna False).";
-(*This fdunction is responsible for the execution of a single game*)
-singlePlay::usage = "singlePlay[insertedName_, insertedSeed_] esegue una singola partita. I due parametri opzionali servono per l'inserimento del nome del giocatore "
+singlePlay::usage = "singlePlay[insertedName_, insertedSeed_] esegue una singola partita. I due parametri opzionali servono per l'inserimento del nome del giocatore e del seed della partita.";
 
 Begin["`Private`"];
 
-(* Parameters *)
+(* PARAMETERS *)
 fontSize = 20; (*Font size*)
 fontSizeDisclaimer = 15; (*Red written text font size*)
-fontSizePlus = 28;  (*Font size of important informatzions suche as Winner*)
+fontSizePlus = 28;  (*Font size of important informations such as the winner*)
 fontSizeTitle = 35; (*Titles font size*)
 inputFieldSizes = {200, 50}; (*Parameters for the input fields*)
 buttonSizes = {100, 50}; (*Parameters for the button size*)
@@ -29,13 +28,13 @@ playedSeed = ""; (*Played seed*)
 playingGamer = ""; (*Player name*)
 
 (* Parameters used to keep history *)
-win = 0; (*Counter for the number of vicotries*)
+win = 0; (*Counter for the number of victories*)
 lose = 0; (*Counter for the number of lost games*)
 draw = 0; (*Counter for the number of draws*)
 (* historyFlag is used to avoid that the history counter keeps increasing more then it should *)
 historyFlag = False;
 
-(* Calculate score function. This function takes a hand of cards as input, either the player's or the dealr's *)
+(* Calculate score function. This function takes a hand of cards as input, either the player's or the dealer's *)
 calculateScore[hand_List] :=
   Module[{score, aces},
     (*The graphic library, used for displaying the cards, assigns an incremental value, starting 1 and reaching 52, to each card*)
@@ -44,7 +43,7 @@ calculateScore[hand_List] :=
     (*If the value obtained is equal to 0, it means the card is a King, so the value it has to assume for the game is 10*)
     (*If the value obtained is eqaul to 1, it means the card ia an Ace, so the value it has to assume for the game is 11*)
     score = Total[If[#>10||#==0,10,If[#==1,11,#]]&/@Mod[hand,13]];
-    (* We need keep track of the number of aces we have in our hand, in order to know how many times we need to iterate next*)
+    (* We need to keep track of the number of aces we have in our hand, in order to know how many times we need to iterate next*)
     aces = Count[Mod[hand,13], 1];
     (*If the total score is greater than 21 and there is at least an ace in the hand, the value of the ace becomes 1 instead of 11 (this applies to every ace in the hand) *)
     While[aces > 0,               
@@ -56,8 +55,8 @@ calculateScore[hand_List] :=
 (* This function checks if the seed inserted is valid: this condition is verified if the number is an integer *)
 checkInputSeed[input_String] :=
   Module[{valid},
-    If[StringContainsQ[input, "."] || input == "", valid = False, valid = True]; (*This if checks if the input contains the "." of if the value is empty*)
-  valid]; (* return true if the inserted number is valid: doesn't contain dots *)
+    If[StringContainsQ[input, "."] || input == "", valid = False, valid = True]; (*This "If" checks if the input contains the "." of if the value is empty*)
+  valid]; (* return true if the inserted number is valid: doesn't contain dots and isn't empty *)
 
 (* Actual game function *)
 playBlackjack[insertedName_:"", insertedSeed_:""] := 
@@ -65,21 +64,21 @@ playBlackjack[insertedName_:"", insertedSeed_:""] :=
     (* Cleaning the console *)
     ClearSystemConsole[];
 
-    (*Import Graphic library for the cards *)
+    (* Import Graphic library for the cards *)
     playingcardgraphic = ResourceFunction["PlayingCardGraphic"];
 
-    (*the decision variable stores the choice of the button pressed*)
+    (* the decision variable stores the choice of the button pressed during the game *)
     decision = singlePlay[insertedName, insertedSeed];
 
     (* All the possible decision are the cases of the switch *)
     Switch[decision,    
-      "NewGame",  (*Starts a new game*)
+      "NewGame",  (* Starts a new game *)
         playBlackjack[playingGamer];,
-      "Quit", (*Quit the game and exits it*)
+      "Quit", (* Quit the game and exits it *)
         Quit[];,
-      "Restart", (*Restarts the same game*)
+      "Restart", (* Restarts the same game *)
         playBlackjack[playingGamer, playedSeed];, 
-      "chooseCharacter", (*Change the name of the player*)
+      "chooseCharacter", (* Change the name of the player *)
         playBlackjack[];,      
       _, 
         Quit[];
@@ -115,7 +114,7 @@ singlePlay[insertedName_, insertedSeed_] :=
             phase = "skipSeed";];
 
           Column[{
-            (*Printing the screen which askes the player to put his name as input *)
+            (*Printing the screen which asks the player to put his name as input *)
             TextCell["BLACKJACK", "Text", FontFamily -> "Times", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizeTitle],
 
             TextCell["Inserisci il " Style["nome del giocatore", Bold], "Text", FontFamily -> "Helvetica", FontSize -> fontSize],
@@ -124,21 +123,21 @@ singlePlay[insertedName_, insertedSeed_] :=
             Button[
               Style["Procedi", fontSize, Bold],
               (* button pressed action *)
-              (If[playerName === "", playerName = "Anonimo";];   (* if no name is inserted, an automatic one is assigned to the player *)
-              phase = "chooseSeed";),    (* when "Procedi" button is pressed, continue with phase is changed to chooseSeed *)
+              (If[playerName === "", playerName = "anonimo";];   (* if no name is inserted, an automatic one is assigned to the player *)
+              phase = "chooseSeed";),    (* when "Procedi" button is pressed, phase is changed to chooseSeed *)
               ImageSize -> buttonSizes,
               Appearance -> {"DialogBox"}
             ]
           }, Center, Spacings -> buttonProcediSpacing],
 
-      (* CASE skipSeed. This phase means the player wants to replay the game with th*)
-        "skipSeed",     (* when play restarted: when the playBlackjack function is called with seed parameter  *)
+      (* CASE skipSeed. This phase means the player wants to replay the game with the same seed *)
+        "skipSeed",     (* when play is restarted: when the playBlackjack function is called with seed parameter *)
           SeedRandom[actualSeed];
 
           (* Player and Dealer hands initialized (here beacause it has to be done after seed is set) *)
           playerHand = RandomSample[Range@52,2];                          (* two random cards are drawn from the deck *)
           dealerHand = RandomSample[Complement[Range@52,playerHand],2];   (* two random cards are drawn from the deck, excluding the cards that have already been drawn *)
-          dealerHand1 = dealerHand[[1]];                                  (* this value stores the first card the dealer has drawn. This is necessary because only one out of the two cards of the dealer can be shown from the beginning of the game*)
+          dealerHand1 = dealerHand[[1]];                                  (* this value stores the first card the dealer has drawn. This is necessary because only one of the two cards of the dealer can be shown from the beginning of the game*)
           (* Initializing player and dealer score *)
           playerScore = calculateScore[playerHand]; (* The value of the player's hand is calculated *)
           dealerScore = calculateScore[dealerHand]; (* The value of the dealer's hand is calculated *)
@@ -151,10 +150,10 @@ singlePlay[insertedName_, insertedSeed_] :=
             TextCell["CARICAMENTO...", "Text", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus]
           }, Center, Spacings -> {15}],
 
-      (* CASE chooseSeed. This phase askes the player to choose a seed, if he doesn't an automatic one iss assigned to the game *)
+      (* CASE chooseSeed. This phase asks the player to choose a seed, if he doesn't an automatic one is assigned to the game *)
         "chooseSeed",        
           Column[{
-            (*Printing the screen which askes the player to put the seed as input *)
+            (*Printing the screen which asks the player to put the seed as input *)
             TextCell["BLACKJACK", "Text", FontFamily -> "Times", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizeTitle],
             TextCell["Ciao, " Style[playerName, Bold], "Text", FontFamily -> "Helvetica", FontSize -> fontSize],
             
@@ -162,7 +161,7 @@ singlePlay[insertedName_, insertedSeed_] :=
             InputField[Dynamic[inputValue], Number, ImageSize -> inputFieldSizes, BaseStyle -> {FontSize -> fontSize}],
 
             Row[{
-              (* "Indietro" button is useful because if the player inserted his name wrongly, he can press press the button and change the name *)
+              (* "Indietro" button is useful because if the player inserted his name wrongly, he can press the button and change the name *)
               Button[
                 Style["Indietro", fontSize, Bold],
                 (* button pressed action *)
@@ -173,13 +172,13 @@ singlePlay[insertedName_, insertedSeed_] :=
               ],
 
               Button[
-                (* "Procedi" button is used to proceed with the actual game*)
+                (* "Procedi" button is used to proceed with the actual game *)
                 Style["Procedi", fontSize, Bold], 
                 (* button pressed action *)
                 ( Pause[0.8];     (* used to wait the inputValue dynamic variable updates *)
                   If[checkInputSeed[ToString[inputValue]], (* if the inserted value is valid, then the seed is set with the entered value, otherwise a random seed is assigned to the game *)
                     actualSeed = inputValue; SeedRandom[inputValue];,                 (* the seed entered is valid *)
-                    actualSeed = RandomInteger[1000000]; SeedRandom[actualSeed];      (* If the seed wasn't entered or has an invalid value, a randomic one is gnerated*)
+                    actualSeed = RandomInteger[1000000]; SeedRandom[actualSeed];      (* If the seed wasn't entered or has an invalid value, a randomic one is generated*)
                   ];
 
                   (* Player and Dealer hands initialized (here beacause it has to be done after seed is set) *)      
@@ -228,7 +227,7 @@ singlePlay[insertedName_, insertedSeed_] :=
               (* "chiedi carta" button. It adds another card to the player hand *)
               Button[
                 Style["Chiedi Carta", fontSize, Bold],   (* ask for a new card button *)
-                (* If hit, adds a new card to the player's hand and sarts a new player turn *)
+                (* If hit, adds a new card to the player's hand and starts a new player turn *)
                 (AppendTo[playerHand, RandomChoice[Complement[Range@52, playerHand, dealerHand]]];
                 playerScore = calculateScore[playerHand];  (* update playerScore *)
                 If[playerScore > 21,  (*if playerScore is greater than 21, the player can't ask for another card nor stand, because he looses. So the phase is switched to determinWinner*)
@@ -238,7 +237,7 @@ singlePlay[insertedName_, insertedSeed_] :=
                 Appearance -> {"DialogBox"}
               ],
 
-              (* "stai" button. The player choooses to stand so not to ask for any more cards *)
+              (* "stai" button. The player chooses to stand so not to ask for any more cards *)
               Button[
                 Style["Stai", fontSize, Bold],   (* End player turn *)
                 phase = "dealerTurn";,  (*phase is changed to dealerTurn*)
@@ -259,14 +258,14 @@ singlePlay[insertedName_, insertedSeed_] :=
             }, "   "]
           }, Center, Spacings -> columnSpacing],   (* Center parameter align column content *)
 
-        (* CASE dealerTurn. This phase is the one where the dealer plays. *)
+        (* CASE dealerTurn. This phase is the one where the dealer plays *)
         "dealerTurn",
           While[dealerScore < 17,   (* Blackjack rules state that the dealer has to ask for cards until his hand value reaches at least 17*)
             AppendTo[dealerHand, RandomChoice[Complement[Range@52, playerHand, dealerHand]]]; (*Adds another card to dealer's hand*)
             dealerScore = calculateScore[dealerHand];     (* update dealerScore *)
           ];
 
-          phase = "determineWinner"; (*Pashe is changed to determineWinner*)
+          phase = "determineWinner"; (* Phase is changed to determineWinner *)
           
           Column[{
             (*Printing the screen which appears previously than the display of the actual winner*)
@@ -274,7 +273,7 @@ singlePlay[insertedName_, insertedSeed_] :=
             TextCell["IL VINCITORE È...", "Text", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus]
           }, Center, Spacings -> {15}],
 
-        (* CASE determineWinner. This phas shows who actually won the game, the player or the dealer *)
+        (* CASE determineWinner. This phase shows who actually won the game, the player, the dealer or if it's a draw*)
         "determineWinner",
           Pause[1];   (* to show on the screen the "IL VINCITORE È..." message for one second *)
           Column[{
@@ -307,7 +306,7 @@ singlePlay[insertedName_, insertedSeed_] :=
                   winner = "dealer";, (*The dealer wins*)
                   If[playerScore === dealerScore,  (* If the player's score and the dealer's one are equal *)
                     winner = "pareggio";, (*The game ends with a draw*)
-                    If[dealerScore > 21 || playerScore > dealerScore,   (* If the dealer goes out of bound or the player's score is higher than the deaer's*)
+                    If[dealerScore > 21 || playerScore > dealerScore,   (* If the dealer goes out of bound or the player's score is higher than the dealer's*)
                       winner = "player";, (*The player wins*)
                         winner = "dealer";    (* dealer'score is higher, so the dealer wins *)
                 ];];];
@@ -338,7 +337,7 @@ singlePlay[insertedName_, insertedSeed_] :=
             ],
             (*At the end of the game, there are the following buttons which can be pressed*)
             Row[{
-              (* "Nuova Partita" button. Starts a new game, si the player is asked to insert a new seed or a randomic one will be assigne to him *)
+              (* "Nuova Partita" button. Starts a new game, the player is asked to insert a new seed or a randomic one will be assigned *)
               Button[
                 (* Stat a new game with the same player name*) 
                 Style["Nuova Partita", fontSize, Bold], 
