@@ -143,11 +143,11 @@ singlePlay[insertedName_, insertedSeed_] :=
         "skipSeed",    (* when play is restarted: when the playBlackjack function is called with a seed parameter *)
           SeedRandom[actualSeed];
 
-          (* Player and Dealer hands initialized (here because it has to be done after the seed is set) *)
+          (* Player and Dealer hands are initialized (here because it has to be done after the seed is set) *)
           playerHand = RandomSample[Range@52,2];                          (* two random cards are drawn from the deck *)
           dealerHand = RandomSample[Complement[Range@52,playerHand],2];   (* two random cards are drawn from the deck, excluding the cards that have already been drawn *)
-          dealerHand1 = dealerHand[[1]];                                  (* this value stores the first card the dealer has drawn. This is necessary because only one of the two cards of the dealer can be shown from the beginning of the game*)
-          (* Initializing player and dealer score *)
+          dealerHand1 = dealerHand[[1]];                                  (* this value stores the first card the dealer has drawn. This is necessary because only one of the two the dealer's cards can be shown from the beginning of the game*)
+          (* Initializing player and dealer scores *)
           playerScore = calculateScore[playerHand]; (* The value of the player's hand is calculated *)
           dealerScore = calculateScore[dealerHand]; (* The value of the dealer's hand is calculated *)
 
@@ -190,12 +190,12 @@ singlePlay[insertedName_, insertedSeed_] :=
                     actualSeed = RandomInteger[1000000]; SeedRandom[actualSeed];      (* If the seed wasn't entered or has an invalid value, a random one is generated*)
                   ];
 
-                  (* Player and Dealer hands initialized (it is done here beacause it has to be done after seed is set) *)      
+                  (* Player and Dealer hands are initialized (it is done here beacause it has to be done after seed is set) *)      
                   playerHand = RandomSample[Range@52,2];                          (* two random cards are drawn from the deck, excluding the cards that have already been drawn *)
                   dealerHand = RandomSample[Complement[Range@52,playerHand],2];   (* this value stores the first card the dealer has drawn. This is necessary because only one out of the two cards of the dealer can be shown from the beginning of the game*)
-                  dealerHand1 = dealerHand[[1]];     (* this value stores the first card the dealer has drawn. This is necessary because only one out of the two cards of the dealer can be shown from the beginning of the game*)
+                  dealerHand1 = dealerHand[[1]];     (* this value stores the first card the dealer has drawn. This is necessary because only one out of the two dealer's cards can be shown from the beginning of the game*)
 
-                  (* Initializing player and dealer score *)
+                  (* Initializing player and dealer scores *)
                   playerScore = calculateScore[playerHand]; (* The value of the player's hand is calculated *)
                   dealerScore = calculateScore[dealerHand]; (* The value of the dealer's hand is calculated *)
 
@@ -211,7 +211,7 @@ singlePlay[insertedName_, insertedSeed_] :=
        (* CASE playerTurn. This phase is the actual player's turn, where they can decide whether to take another card or to stand *)
         "playerTurn", 
           Column[{
-            (*Displaying the game dinamic*)
+            (*Displaying the game dynamic*)
             TextCell["BLACKJACK", "Text", FontFamily -> "Times", FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizeTitle],
 
             Grid[{{TextCell["Seed: " <> ToString[actualSeed], "Text", FontSize -> fontSize]}}],   (* insert in a Grid element in order to center TextCell horizontally *)
@@ -318,25 +318,18 @@ singlePlay[insertedName_, insertedSeed_] :=
                       winner = "player";, (*The player wins*)
                         winner = "dealer";    (* dealer'score is higher, so the dealer wins *)
                 ];];];
-
                 If[winner === "dealer",
-                    
                       (*if the dealer has won, display that the player has lost*)
                       If[!historyFlag, lose = lose + 1; historyFlag = True;];
-                      TextCell["HAI PERSO, IL DEALER VINCE!", "Text", FontColor -> Red, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus]
-                    ,
+                      TextCell["HAI PERSO, IL DEALER VINCE!", "Text", FontColor -> Red, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus],
                 If[winner === "player",
-                    
                       (*if the player has won, display that the player has won*)
                       If[!historyFlag, win = win + 1; historyFlag = True;];
-
-                      TextCell["HAI VINTO!", "Text", FontColor -> Green, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus]
-                    ,
+                      TextCell["HAI VINTO!", "Text", FontColor -> Green, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus],
                     
                       (* Otherwise, it means there was a draw, and the following message is printed *)
                       If[!historyFlag, draw = draw + 1; historyFlag = True;];
                       TextCell["PAREGGIO!", "Text", FontColor -> Orange, FontWeight -> Bold, TextAlignment -> Center, FontSize -> fontSizePlus]
-                     
                   ]
                 ]
               },
@@ -380,7 +373,7 @@ singlePlay[insertedName_, insertedSeed_] :=
                 ImageSize -> inputFieldSizes
               ]
             }, "   "]
-          }, Center, Spacings -> columnSpacing],   (* Center parameter align column content *)
+          }, Center, Spacings -> columnSpacing],   (* Center parameter aligns column content *)
 
           (* CASE default *)
           _, 
